@@ -1,0 +1,30 @@
+.payments-container {
+  padding: 20px;
+}
+
+.page-heading {
+  font-size: 22px;
+  font-weight: bold;
+  color: #002f54;
+  margin-bottom: 20px;
+}
+
+.page-heading2 {
+color:#ffd30df1;
+}
+
+.page-heading {
+color:#ffd30df1;
+}
+
+.filters-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.summary-cards {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}

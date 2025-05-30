@@ -1,0 +1,27 @@
+.custom-menu-item {
+  transition: all 0.3s ease;
+}
+
+.custom-menu-item:hover {
+  background-color: #ef4444 !important;
+  color: #fff !important;
+}
+
+.custom-menu-item:hover .custom-icon {
+  color: #fff !important;
+}
+
+.active-item {
+  background-color: #ef4444 !important;
+  color: #fff !important;
+}
+
+.active-icon {
+  color: #fff !important;
+}
+
+.custom-icon {
+  color: #eab308;
+  transition: color 0.3s ease;
+}
+ 

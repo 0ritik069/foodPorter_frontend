@@ -1,0 +1,18 @@
+.page-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 24px;
+  color: #ef4444;
+  text-align: start;
+}
+
+.page-title2 {
+color:#ffd30df1;
+}
+
+.chart-container {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}

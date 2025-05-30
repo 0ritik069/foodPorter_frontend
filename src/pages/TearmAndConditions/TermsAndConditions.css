@@ -1,0 +1,32 @@
+.policy-page {
+  padding: 24px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ef4444;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.page-title2 {
+color:#ffd30df1;
+}
+
+.policy-section {
+  margin-bottom: 20px;
+}
+
+.policy-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #111827;
+}
+
+.policy-section p {
+  font-size: 14px;
+  color: #4b5563;
+  line-height: 1.6;
+}

@@ -1,0 +1,30 @@
+.transactions-container {
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.page-heading {
+  color: #d32f2f;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.transactions-table .ant-table-thead > tr > th {
+  background-color: #ffe082;
+  font-weight: 600;
+}
+
+.transactions-table .ant-btn-primary {
+  background-color: #ffcc00;
+  border-color: #ffcc00;
+  color: #000;
+}
+
+.transactions-table .ant-btn-primary:hover,
+.transactions-table .ant-btn-primary:focus {
+  background-color: #ffb300;
+  border-color: #ffb300;
+  color: #000;
+}

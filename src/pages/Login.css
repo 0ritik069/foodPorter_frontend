@@ -1,0 +1,29 @@
+.card-body {
+  padding: 1.875rem;
+}
+.bg-login .food-img {
+  border-radius: 0.5rem;
+  height: 30.875rem;
+  object-fit: cover;
+  width: 100%;
+}
+
+.btn_style {
+  background-color: #572131;
+  border-color: #572131;
+  width: 100%;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+}
+btn:hover {
+  color: none !important;
+}
+.btn_focused :focus {
+  border: 1px solid #572131;
+}
+.form-check-input:checked {
+  background-color: #572131 !important;
+  border-color: #572131 !important;
+}
+

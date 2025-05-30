@@ -1,0 +1,38 @@
+.settings-container {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.settings-title {
+  color: #ef4444;
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.settings-title2 {
+color:#ffd30df1;
+}
+
+.settings-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.settings-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  background-color: #f9fafb;
+  text-decoration: none;
+  color: #111827;
+  transition: background-color 0.2s;
+}
+
+.settings-card:hover {
+  background-color: #f3f4f6;
+}
