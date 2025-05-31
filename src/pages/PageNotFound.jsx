@@ -1,128 +1,96 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Typography,
+  Card,
+  Grid,
+  Box,
+  useTheme,
 } from "@mui/material";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
-const ManageOrders = () => {
-  const [open, setOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+const { Title } = Typography;
 
-  const showModal = (order) => {
-    setSelectedOrder(order);
-    setOpen(true);
-  };
+const summaryData = {
+  totalEarnings: 125000,
+  totalOrders: 320,
+  avgOrderValue: 390,
+};
 
-  const handleCancel = () => {
-    setOpen(false);
-    setSelectedOrder(null);
-  };
+const monthlyEarnings = [
+  { month: "Jan", earnings: 10000 },
+  { month: "Feb", earnings: 12000 },
+  { month: "Mar", earnings: 15000 },
+  { month: "Apr", earnings: 13000 },
+  { month: "May", earnings: 18000 },
+  { month: "Jun", earnings: 22000 },
+  { month: "Jul", earnings: 25000 },
+];
 
-  const orderData = [
-    {
-      id: "ORD001",
-      customer: "Ravi Sharma",
-      items: "Paneer Tikka, Butter Naan",
-      amount: 350,
-      status: "Pending",
-    },
-    {
-      id: "ORD002",
-      customer: "Anjali Verma",
-      items: "Veg Biryani, Raita",
-      amount: 280,
-      status: "Delivered",
-    },
-    {
-      id: "ORD003",
-      customer: "Mohit Singh",
-      items: "Chole Bhature, Lassi",
-      amount: 300,
-      status: "Preparing",
-    },
-    {
-      id: "ORD004",
-      customer: "Sneha Gupta",
-      items: "Masala Dosa, Filter Coffee",
-      amount: 250,
-      status: "Cancelled",
-    },
-  ];
+const Earnings = () => {
+  const theme = useTheme();
 
   return (
-    <div className="p-4">
-      <Typography variant="h5" gutterBottom>
-        Manage Orders
+    <Box sx={{ padding: 2 }}>
+      <Typography variant="h5" gutterBottom fontWeight="bold">
+        Earnings
       </Typography>
 
-      <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              <TableCell><strong>Order ID</strong></TableCell>
-              <TableCell><strong>Customer</strong></TableCell>
-              <TableCell><strong>Items</strong></TableCell>
-              <TableCell><strong>Amount</strong></TableCell>
-              <TableCell><strong>Status</strong></TableCell>
-              <TableCell><strong>Action</strong></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {orderData.map((order, index) => (
-              <TableRow key={index}>
-                <TableCell>{order.id}</TableCell>
-                <TableCell>{order.customer}</TableCell>
-                <TableCell>{order.items}</TableCell>
-                <TableCell>₹{order.amount}</TableCell>
-                <TableCell>{order.status}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => showModal(order)}
-                    size="small"
-                  >
-                    View
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={12} sm={4}>
+          <Card sx={{ p: 2 }}>
+            <Typography variant="subtitle1">Total Earnings</Typography>
+            <Typography variant="h6" fontWeight="bold">
+              ₹{summaryData.totalEarnings.toLocaleString()}
+            </Typography>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <Card sx={{ p: 2 }}>
+            <Typography variant="subtitle1">Total Orders</Typography>
+            <Typography variant="h6" fontWeight="bold">
+              {summaryData.totalOrders}
+            </Typography>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <Card sx={{ p: 2 }}>
+            <Typography variant="subtitle1">Avg. Order Value</Typography>
+            <Typography variant="h6" fontWeight="bold">
+              ₹{summaryData.avgOrderValue}
+            </Typography>
+          </Card>
+        </Grid>
+      </Grid>
 
-      <Dialog open={open} onClose={handleCancel}>
-        <DialogTitle>Order Details</DialogTitle>
-        <DialogContent dividers>
-          {selectedOrder && (
-            <div>
-              <Typography variant="body1"><strong>Order ID:</strong> {selectedOrder.id}</Typography>
-              <Typography variant="body1"><strong>Customer:</strong> {selectedOrder.customer}</Typography>
-              <Typography variant="body1"><strong>Items:</strong> {selectedOrder.items}</Typography>
-              <Typography variant="body1"><strong>Amount:</strong> ₹{selectedOrder.amount}</Typography>
-              <Typography variant="body1"><strong>Status:</strong> {selectedOrder.status}</Typography>
-            </div>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancel} color="secondary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+      <Card sx={{ p: 2 }}>
+        <Typography variant="subtitle1" gutterBottom>
+          Monthly Earnings
+        </Typography>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={monthlyEarnings} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+            <Line
+              type="monotone"
+              dataKey="earnings"
+              stroke={theme.palette.primary.main}
+              strokeWidth={3}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </Card>
+    </Box>
   );
 };
 
-export default ManageOrders;
+export default Earnings;

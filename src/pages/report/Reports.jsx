@@ -21,11 +21,15 @@ const topRestaurants = [
   { name: "Biryani Express", earnings: 8600 },
   { name: "Tandoori Treats", earnings: 7400 },
 ];
+import Typography from "@mui/material/Typography";
 
 const Reports = () => {
   return (
     <div className="reports-container">
-      <h1 className="font-semibold">Reports & <span>Analytics</span></h1>
+      {/* <h1 className="font-semibold">Reports & <span>Analytics</span></h1> */}
+      <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }} component="h2">
+  Reports & <span>Analytics</span>
+</Typography>
        {/* <Typography variant="h5" sx={{ fontWeight: 600 }} component="h2">
                 Payments & <span>Earnings</span>
               </Typography> */}

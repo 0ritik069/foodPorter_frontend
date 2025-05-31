@@ -31,11 +31,17 @@ const data = [
     status: "Pending",
   },
 ];
+import Typography from "@mui/material/Typography";
 
 const ComplaintsContact = () => {
   return (
     <div className="complaints-page">
-      <h2 style={{textAlign:"left"}}>Complaints & <span>Contact</span> </h2>
+      {/* <h2 style={{textAlign:"left"}}>Complaints & <span>Contact</span> </h2>
+ */}
+  
+<Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }} component="h2">
+  Complaints & Contact <span>Analytics</span>
+</Typography>
                                                             
       <div className="complaints-table">
         <div className="table-header">

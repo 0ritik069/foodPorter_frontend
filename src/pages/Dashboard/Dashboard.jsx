@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Chart from "react-apexcharts";
 const adminName = localStorage.getItem("name");
-
+import { Typography } from "@mui/material";
 const Dashboard = () => {
   const [donutOptions] = useState({
     labels: ["New Orders", "Customer Growth", "Total Revenue"],
@@ -89,9 +89,12 @@ const Dashboard = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-800">
+          {/* <h2 className="text-2xl font-semibold text-gray-800">
             Hi <span className="text-blue-500">{adminName}</span>,
-          </h2>
+          </h2> */}
+          <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }} component="h2">
+  Hi, <span >{adminName}</span>
+</Typography>
           <p className="text-sm text-gray-600">
             Welcome back to the Admin Dashboard
           </p>

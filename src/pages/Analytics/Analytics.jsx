@@ -41,13 +41,18 @@ const customerData = [
 
 const COLORS = ["#ef4444", "#f59e0b"];
 
+import Typography from "@mui/material/Typography";
+
 const Analytics = () => {
   return (
     <div className="analytics-page">
       {/* <div>
 
       </div> */}
-      <h2 style={{textAlign:"start"}}>Analytics <span>Overview</span></h2>
+      {/* <h2 style={{textAlign:"start"}}>Analytics <span>Overview</span></h2> */}
+      <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }} component="h2">
+  <span >Analytics Overview</span>
+</Typography>
 
       {/* Line Chart */}
       <div className="chart-container">

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./AdminAccess.css";
-
+import { Typography } from "@mui/material";
 const AdminAccess = () => {
   const [admins, setAdmins] = useState([
     { id: 1, name: "Ravi Kumar", email: "ravi@foodporter.com", role: "Manager" },
@@ -31,9 +31,15 @@ const AdminAccess = () => {
     setAdmins(updated);
   };
 
+
   return (
     <div className="admin-access-container">
-      <h2 >Manage Admin <span >Access</span> </h2>
+      {/* <h2 >Manage Admin <span >Access</span> </h2>
+       */}
+       
+<Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }} component="h2">
+  Manage Admin Access
+</Typography>
 
       <form className="admin-form" onSubmit={handleAddAdmin}>
         <h3>Add New Admin</h3>

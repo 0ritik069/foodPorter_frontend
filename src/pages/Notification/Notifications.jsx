@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { MdNotificationsActive } from "react-icons/md";
 import { FaCheckCircle } from "react-icons/fa";
 import "./Notification.css";
-
+import { Typography } from "@mui/material";
 
 const dummyNotifications = [
   {
@@ -49,7 +49,10 @@ const Notifications = () => {
   return (
     <div className="notifications-page">
       <div>
-    <h2 style={{textAlign:"start"}}>Notifications</h2>
+    {/* <h2 style={{textAlign:"start"}}>Notifications</h2> */}
+    <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }} component="h2">
+  Notification
+</Typography>
     
 
       </div>

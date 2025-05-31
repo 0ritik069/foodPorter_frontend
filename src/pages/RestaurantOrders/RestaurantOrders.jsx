@@ -1,6 +1,17 @@
 import React from "react";
-import { Table, Tag, Button } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import {
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Paper,
+  Typography,
+  IconButton,
+  Chip,
+  TableContainer,
+} from "@mui/material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import "./RestaurantOrders.css";
 
 const orderData = [
@@ -33,69 +44,64 @@ const orderData = [
   },
 ];
 
+const getStatusColor = (status) => {
+  switch (status) {
+    case "Delivered":
+      return "success";
+    case "Pending":
+      return "warning";
+    case "Cancelled":
+      return "error";
+    default:
+      return "default";
+  }
+};
+
 const RestaurantOrders = () => {
-  const columns = [
-    {
-      title: "Order ID",
-      dataIndex: "orderId",
-      key: "orderId",
-      render: (text) => <strong>{text}</strong>,
-    },
-    {
-      title: "Customer",
-      dataIndex: "customer",
-      key: "customer",
-    },
-    {
-      title: "Items",
-      dataIndex: "items",
-      key: "items",
-    },
-    {
-      title: "Total",
-      dataIndex: "total",
-      key: "total",
-    },
-    {
-      title: "Time",
-      dataIndex: "time",
-      key: "time",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status) => {
-        let color = "default";
-        if (status === "Delivered") color = "green";
-        else if (status === "Pending") color = "orange";
-        else if (status === "Cancelled") color = "red";
-
-        return <Tag color={color}>{status}</Tag>;
-      },
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      render: () => (
-        <Button icon={<EyeOutlined />} size="small">
-          View
-        </Button>
-      ),
-    },
-  ];
-
   return (
-    <div className="restaurant-orders-container">
-      <h2 className="page-heading">
+    <div>
+<Typography variant="h5" sx={{ fontWeight: 600 }} gutterBottom>
         Restaurant <span>Orders</span>
-      </h2>
-      <Table
-        columns={columns}
-        dataSource={orderData}
-        pagination={{ pageSize: 5 }}
-        bordered
-      />
+      </Typography>
+ 
+    
+         <div className="restaurant-orders-container">
+    
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell><strong>Order ID</strong></TableCell>
+              <TableCell>Customer</TableCell>
+              <TableCell>Items</TableCell>
+              <TableCell>Total</TableCell>
+              <TableCell>Time</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {orderData.map((order) => (
+              <TableRow key={order.key}>
+                <TableCell><strong>{order.orderId}</strong></TableCell>
+                <TableCell>{order.customer}</TableCell>
+                <TableCell>{order.items}</TableCell>
+                <TableCell>{order.total}</TableCell>
+                <TableCell>{order.time}</TableCell>
+                <TableCell>
+                  <Chip label={order.status} color={getStatusColor(order.status)} />
+                </TableCell>
+                <TableCell>
+                  <IconButton color="primary" size="small">
+                    <VisibilityIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
     </div>
   );
 };

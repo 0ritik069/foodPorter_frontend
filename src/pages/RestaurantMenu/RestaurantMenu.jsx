@@ -1,6 +1,19 @@
 import React from "react";
-import { Table, Button, Tag, Avatar } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Paper,
+  Typography,
+  IconButton,
+  Avatar,
+  Chip,
+  TableContainer,
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import "./RestaurantMenu.css";
 
 const menuData = [
@@ -31,63 +44,54 @@ const menuData = [
 ];
 
 const RestaurantMenu = () => {
-  const columns = [
-    {
-      title: "Image",
-      dataIndex: "image",
-      key: "image",
-      render: (emoji) => <Avatar size="large">{emoji}</Avatar>,
-    },
-    {
-      title: "Item Name",
-      dataIndex: "name",
-      key: "name",
-      render: (text) => <strong>{text}</strong>,
-    },
-    {
-      title: "Category",
-      dataIndex: "category",
-      key: "category",
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-    },
-    {
-      title: "Availability",
-      dataIndex: "availability",
-      key: "availability",
-      render: (status) => (
-        <Tag color={status === "Available" ? "green" : "red"}>{status}</Tag>
-      ),
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      render: () => (
-        <div className="menu-actions">
-          <Button icon={<EditOutlined />} size="small" />
-          <Button
-            icon={<DeleteOutlined />}
-            size="small"
-            danger
-            style={{ marginLeft: 8 }}
-          />
-        </div>
-      ),
-    },
-  ];
-
   return (
     <div className="restaurant-menu-container">
-      <h2 className="page-heading">Menu <span className="page-heading2">Management</span></h2>
-      <Table
-        columns={columns}
-        dataSource={menuData}
-        pagination={{ pageSize: 5 }}
-        bordered
-      />
+      <Typography variant="h5"  gutterBottom>
+        Menu <span >Management</span>
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell><strong>Image</strong></TableCell>
+              <TableCell><strong>Item Name</strong></TableCell>
+              <TableCell>Category</TableCell>
+              <TableCell>Price</TableCell>
+              <TableCell>Availability</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {menuData.map((item) => (
+              <TableRow key={item.key}>
+                <TableCell>
+                  <Avatar sx={{ width: 40, height: 40, fontSize: 22 }}>{item.image}</Avatar>
+                </TableCell>
+                <TableCell><strong>{item.name}</strong></TableCell>
+                <TableCell>{item.category}</TableCell>
+                <TableCell>{item.price}</TableCell>
+                <TableCell>
+                  <Chip
+                    label={item.availability}
+                    color={item.availability === "Available" ? "success" : "error"}
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell>
+                  <div className="menu-actions">
+                    <IconButton color="primary" size="small">
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton color="error" size="small">
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 };

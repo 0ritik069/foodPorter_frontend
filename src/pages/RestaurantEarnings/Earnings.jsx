@@ -1,5 +1,11 @@
 import React from "react";
-import { Typography, Card, Row, Col } from "antd";
+import {
+  Typography,
+  Card,
+  Grid,
+  Box,
+  useTheme
+} from "@mui/material";
 import {
   LineChart,
   Line,
@@ -7,71 +13,42 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
+  ResponsiveContainer
 } from "recharts";
-import "./Earnings.css";
 
-const { Title } = Typography;
+const {Title} = Typography;
 
-// Sample data
 const summaryData = {
   totalEarnings: 125000,
   totalOrders: 320,
   avgOrderValue: 390,
 };
 
-const monthlyEarnings = [
-  { month: "Jan", earnings: 10000 },
-  { month: "Feb", earnings: 12000 },
-  { month: "Mar", earnings: 15000 },
-  { month: "Apr", earnings: 13000 },
-  { month: "May", earnings: 18000 },
-  { month: "Jun", earnings: 22000 },
-  { month: "Jul", earnings: 25000 },
-];
-
-const Earnings = () => {
-  return (
-    <div className="earnings-container">
-      <Title level={3} className="page-heading">
-        Earnings
-      </Title>
-
-      <Row gutter={16} style={{ marginBottom: 30 }}>
-        <Col xs={24} sm={8}>
-          <Card className="summary-card" bordered={false}>
-            <h3>Total Earnings</h3>
-            <p className="summary-value">₹{summaryData.totalEarnings.toLocaleString()}</p>
-          </Card>
-        </Col>
-        <Col xs={24} sm={8}>
-          <Card className="summary-card" bordered={false}>
-            <h3>Total Orders</h3>
-            <p className="summary-value">{summaryData.totalOrders}</p>
-          </Card>
-        </Col>
-        <Col xs={24} sm={8}>
-          <Card className="summary-card" bordered={false}>
-            <h3>Avg. Order Value</h3>
-            <p className="summary-value">₹{summaryData.avgOrderValue}</p>
-          </Card>
-        </Col>
-      </Row>
-
-      <Card className="chart-card" bordered={false}>
-        <h3>Monthly Earnings</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={monthlyEarnings} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
-            <Line type="monotone" dataKey="earnings" stroke="#d32f2f" strokeWidth={3} />
-          </LineChart>
-        </ResponsiveContainer>
-      </Card>
-    </div>
-  );
+const monthlyEarnings = {
+  Jan: 10000,
+  Feb: 12000,
+  Mar: 15000,
+  Apr: 13000,
+  May: 18000,
+  Jun: 22000,
+  Jul: 25000,
 };
 
-export default Earnings;
+const Earnings = () => {
+  const theme = useTheme();
+
+  return(
+    <Box sx={{ padding: 2 }}>
+      <Typography variant="h5" gutterBottom fontWeight={"bold"}>
+        Earnings
+      </Typography>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={12} sm={4}>
+          <Card sx={{p: 2}}>
+            <Typography variant="subtitle1">Total Earnings</Typography>
+            <Typography variant="h6" fontWeight={"bold"}>
+              ₹{summaryData.totalEarnings.toLocaleString()}
+            </Typography>
+            
+  )
+}

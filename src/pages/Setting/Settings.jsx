@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./Setting.css";
-
+import { Typography } from "@mui/material";
 const Settings = () => {
   const settingsList = [
     { title: "Update Contact Details", path: "/admin/settings/contact" },
@@ -14,7 +14,11 @@ const Settings = () => {
 
   return (
     <div className="settings-container">
-      <h2 >System  <span>Settings</span></h2>
+      {/* <h2 >System  <span>Settings</span></h2> */}
+      
+<Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }} component="h2">
+  System Settings
+</Typography>
       <div className="settings-list">
         {settingsList.map((item, idx) => (
           <Link to={item.path} className="settings-card" key={idx}>
