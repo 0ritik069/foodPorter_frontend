@@ -1,9 +1,8 @@
 import React from "react";
-import { Typography, Card, Avatar, Row, Col, Button, Descriptions } from "antd";
-import { EditOutlined, ShopOutlined } from "@ant-design/icons";
+import { Box, Typography, Card, Avatar, Grid, Button, Divider } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import StorefrontIcon from "@mui/icons-material/Storefront";
 import "./Profile.css";
-
-const { Title } = Typography;
 
 const profileData = {
   name: "Spice Villa",
@@ -16,41 +15,45 @@ const profileData = {
 
 const RestaurantProfile = () => {
   return (
-    <div className="profile-container">
-      <Title level={3} className="page-heading">
+    <Box className="profile-container">
+      <Typography variant="h5" className="page-heading" gutterBottom>
         Restaurant Profile
-      </Title>
+      </Typography>
 
-      <Card className="profile-card">
-        <Row gutter={[24, 16]}>
-          <Col xs={24} md={6} className="avatar-col">
-            <Avatar
-              size={100}
-              icon={<ShopOutlined />}
-              style={{ backgroundColor: "#d32f2f" }}
-            />
-          </Col>
-          <Col xs={24} md={18}>
-            <Descriptions column={1} bordered size="middle">
-              <Descriptions.Item label="Restaurant Name">{profileData.name}</Descriptions.Item>
-              <Descriptions.Item label="Owner">{profileData.owner}</Descriptions.Item>
-              <Descriptions.Item label="Email">{profileData.email}</Descriptions.Item>
-              <Descriptions.Item label="Phone">{profileData.phone}</Descriptions.Item>
-              <Descriptions.Item label="Address">{profileData.address}</Descriptions.Item>
-              <Descriptions.Item label="Registered On">{profileData.registeredOn}</Descriptions.Item>
-            </Descriptions>
+      <Card className="profile-card" sx={{ padding: 3 }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={3} className="avatar-col">
+            <Avatar sx={{ bgcolor: '#d32f2f', width: 80, height: 80 }}>
+              <StorefrontIcon fontSize="large" />
+            </Avatar>
+          </Grid>
+          <Grid item xs={12} md={9}>
+            <Box className="profile-details">
+              <Typography variant="subtitle1"><strong>Restaurant Name:</strong> {profileData.name}</Typography>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle1"><strong>Owner:</strong> {profileData.owner}</Typography>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle1"><strong>Email:</strong> {profileData.email}</Typography>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle1"><strong>Phone:</strong> {profileData.phone}</Typography>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle1"><strong>Address:</strong> {profileData.address}</Typography>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle1"><strong>Registered On:</strong> {profileData.registeredOn}</Typography>
+            </Box>
 
             <Button
-              type="primary"
-              icon={<EditOutlined />}
+              variant="contained"
+              startIcon={<EditIcon />}
+              sx={{ mt: 2 }}
               className="edit-button"
             >
               Edit Profile
             </Button>
-          </Col>
-        </Row>
+          </Grid>
+        </Grid>
       </Card>
-    </div>
+    </Box>
   );
 };
 

@@ -1,5 +1,13 @@
-import React from "react";
-import { Typography, List, Rate, Card } from "antd";
+import React, { useState } from "react";
+import {
+  Typography,
+  List,
+  Rate,
+  Card,
+  Button,
+  Modal,
+} from "antd";
+import { EyeOutlined } from "@ant-design/icons";
 import "./Reviews.css";
 
 const { Title } = Typography;
@@ -29,7 +37,16 @@ const reviewsData = [
 ];
 
 const Reviews = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedReview, setSelectedReview] = useState(null);
+
+  const handleView = (item) => {
+    setSelectedReview(item);
+    setIsModalVisible(true);
+  };
+
   return (
+    
     <div className="reviews-container">
       <Title level={3} className="page-heading">
         Customer Reviews
@@ -51,10 +68,39 @@ const Reviews = () => {
                 }
               />
               <div className="review-text">{item.review}</div>
+              <Button
+                icon={<EyeOutlined />}
+                size="small"
+                type="primary"
+                onClick={() => handleView(item)}
+                style={{ marginTop: "10px" }}
+              >
+                View
+              </Button>
             </List.Item>
           </Card>
         )}
       />
+
+      <Modal
+        title="Review Details"
+        open={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsModalVisible(false)}>
+            Close
+          </Button>,
+        ]}
+      >
+        {selectedReview && (
+          <div>
+            <p><strong>Customer:</strong> {selectedReview.customer}</p>
+            <p><strong>Date:</strong> {selectedReview.date}</p>
+            <p><strong>Rating:</strong> <Rate disabled defaultValue={selectedReview.rating} /></p>
+            <p><strong>Review:</strong> {selectedReview.review}</p>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

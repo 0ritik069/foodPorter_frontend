@@ -13,6 +13,11 @@ import {
   TablePagination,
   CircularProgress,
   IconButton,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import Swal from "sweetalert2";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -27,11 +32,16 @@ const ManageCustomer = () => {
   const [page, setPage] = useState(0);
   const rowsPerPage = 5;
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [newCustomer, setNewCustomer] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+  });
 
   const fetchCustomers = async () => {
+    setLoading(true);
     try {
       const response = await axios.get("http://192.168.1.80:5000/api/customers");
       setCustomers(response.data);
@@ -51,7 +61,6 @@ const ManageCustomer = () => {
     try {
       const res = await axios.get(`http://192.168.1.80:5000/api/customers/${id}`);
       const customer = res.data;
-
       Swal.fire({
         title: "Customer Details",
         html: `
@@ -94,43 +103,76 @@ const ManageCustomer = () => {
     }
   };
 
+  const handleAddCustomer = async () => {
+    const { name, email, password, phone } = newCustomer;
+
+    if (!name || !email || !password || !phone) {
+      Swal.fire("Error", "Please fill all fields", "warning");
+      return;
+    }
+
+    try {
+      await axios.post("http://192.168.1.80:5000/api/customers", newCustomer);
+      Swal.fire("Success", "Customer added successfully", "success");
+      setOpenAddDialog(false);
+      setNewCustomer({ name: "", email: "", password: "", phone: "" });
+      fetchCustomers();
+    } catch (error) {
+      console.error("Add error:", error);
+      Swal.fire("Error", "Failed to add customer", "error");
+    }
+  };
+
   const filteredCustomers = customers.filter((customer) =>
     customer.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <Box p={3}>
-      {/* Header and Search */}
+      {/* Header and Action Bar */}
       <Box
         sx={{
           mb: 3,
           display: "flex",
           justifyContent: "space-between",
-          flexWrap: "wrap",
           alignItems: "center",
+          flexWrap: "wrap",
           gap: 2,
         }}
       >
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
           Manage Customers
         </Typography>
-        <TextField
-          label="Search by Name"
-          variant="outlined"
-          size="small"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+
+        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
+          <TextField
+            label="Search by Name"
+            variant="outlined"
+            size="small"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <Button
+            variant="contained"
+            sx={{
+              fontWeight: 600,
+              textTransform: "none",
+              backgroundColor: "#facc15",
+              color: "#000",
+              "&:hover": {
+                backgroundColor: "#eab308",
+              },
+            }}
+            onClick={() => setOpenAddDialog(true)}
+          >
+            + Add Customer
+          </Button>
+        </Box>
       </Box>
 
       {/* Loader */}
       {loading ? (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height="300px"
-        >
+        <Box display="flex" justifyContent="center" alignItems="center" height="300px">
           <CircularProgress />
         </Box>
       ) : (
@@ -161,33 +203,21 @@ const ManageCustomer = () => {
                         <Box display="flex" gap={1}>
                           <IconButton
                             size="small"
-                            sx={{
-                              color: "#2563eb",
-                              border: "1px solid #2563eb",
-                              p: "4px",
-                            }}
+                            sx={{ color: "#2563eb", border: "1px solid #2563eb", p: "4px" }}
                             onClick={() => handleView(customer.id)}
                           >
                             <VisibilityIcon fontSize="small" />
                           </IconButton>
                           <IconButton
                             size="small"
-                            sx={{
-                              color: "#f59e0b",
-                              border: "1px solid #f59e0b",
-                              p: "4px",
-                            }}
+                            sx={{ color: "#f59e0b", border: "1px solid #f59e0b", p: "4px" }}
                             onClick={() => handleEdit(customer.id)}
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
                           <IconButton
                             size="small"
-                            sx={{
-                              color: "red",
-                              border: "1px solid red",
-                              p: "4px",
-                            }}
+                            sx={{ color: "red", border: "1px solid red", p: "4px" }}
                             onClick={() => handleDelete(customer.id)}
                           >
                             <DeleteIcon fontSize="small" />
@@ -204,13 +234,47 @@ const ManageCustomer = () => {
             component="div"
             count={filteredCustomers.length}
             page={page}
-            onPageChange={handleChangePage}
+            onPageChange={(_, newPage) => setPage(newPage)}
             rowsPerPage={rowsPerPage}
             rowsPerPageOptions={[]}
             sx={{ px: 2 }}
           />
         </Paper>
       )}
+
+      {/* Add Customer Modal */}
+      <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} fullWidth>
+        <DialogTitle>Add New Customer</DialogTitle>
+        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+          <TextField
+            label="Name"
+            value={newCustomer.name}
+            onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
+          />
+          <TextField
+            label="Email"
+            value={newCustomer.email}
+            onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            value={newCustomer.password}
+            onChange={(e) => setNewCustomer({ ...newCustomer, password: e.target.value })}
+          />
+          <TextField
+            label="Phone"
+            value={newCustomer.phone}
+            onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenAddDialog(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleAddCustomer}>
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

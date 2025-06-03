@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-} from "@ant-design/icons";
+import { useNavigate, useLocation, Outlet } from "react-router-dom";
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   AiOutlineDashboard,
   AiOutlineLogout,
@@ -15,24 +13,30 @@ import { MdFastfood, MdOutlineSupportAgent } from "react-icons/md";
 import { FaRegListAlt, FaUserEdit, FaRegStar } from "react-icons/fa";
 import { RiCoupon3Line } from "react-icons/ri";
 import { BiMessageDetail } from "react-icons/bi";
-import { Layout, Menu, theme } from "antd";
+import { Avatar, IconButton, Menu, MenuItem } from "@mui/material";
 import logo_png from "../assets/logo.png";
-import "./RestaurantLayout.css"; 
-
-const { Header, Sider, Content } = Layout;
+import "./RestaurantLayout.css";
 
 const RestaurantLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
+  const adminName = localStorage.getItem("name");
 
   const getActiveKey = () => {
-    const path = location.pathname.replace("/restaurant/", "");
-    return path === "" ? "dashboard" : path;
+    const path = location.pathname.replace("/restaurant/", "").split("/")[0];
+    return path || "restaurant";
+  };
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/");
   };
 
   const signOut = () => {
@@ -41,7 +45,7 @@ const RestaurantLayout = () => {
   };
 
   const menuItems = [
-    { key: "dashboard", icon: AiOutlineDashboard, label: "Dashboard" },
+    { key: "restaurant", icon: AiOutlineDashboard, label: "Dashboard" },
     { key: "orders", icon: FaRegListAlt, label: "Orders" },
     { key: "menu", icon: MdFastfood, label: "Menu" },
     { key: "earnings", icon: AiOutlineMoneyCollect, label: "Earnings" },
@@ -57,54 +61,132 @@ const RestaurantLayout = () => {
   ];
 
   return (
-    <Layout>
-      <Sider collapsible collapsed={collapsed} trigger={null} style={{ background: "#fff" }}>
-        <div style={{ padding: "2px", textAlign: "center" }}>
+    <div className="flex h-screen bg-gray-100 overflow-hidden">
+      {/* Sidebar */}
+      <div
+        className={`
+          bg-white transition-width duration-300 ease-in-out
+          fixed top-0 left-0 h-full z-30
+          md:relative md:translate-x-0
+          ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0
+          overflow-y-auto main_menu
+        `}
+        style={{
+          width: collapsed ? "74px" : "256px",
+          minWidth: collapsed ? "74px" : "256px",
+          maxWidth: collapsed ? "64px" : "256px",
+        }}
+      >
+        <div className="flex justify-center p-4 border-b border-gray-200">
           <img
             src={logo_png}
             alt="Logo"
-            style={{ width: collapsed ? "50px" : "120px", transition: "width 0.3s" }}
+            style={{ width: collapsed ? 50 : 80 }}
+            className="transition-all duration-300"
           />
         </div>
-        <Menu
-          mode="inline"
-          selectedKeys={[getActiveKey()]}
-          onClick={({ key }) => {
-            if (key === "signout") signOut();
-            else navigate(`/restaurant/${key === "dashboard" ? "" : key}`);
-          }}
-          items={menuItems.map((item) => ({
-            key: item.key,
-            icon: React.createElement(item.icon, {
-              className: `custom-icon ${getActiveKey() === item.key ? "active-icon" : ""}`,
-            }),
-            label: item.label,
-            className: `custom-menu-item ${getActiveKey() === item.key ? "active-item" : ""}`,
-          }))}
+        <nav className="flex flex-col gap-1 p-2">
+          {menuItems.map((item) => (
+            <div
+              key={item.key}
+              onClick={() => {
+                if (item.key === "signout") signOut();
+                else {
+                  navigate(`/restaurant/${item.key === "restaurant" ? "" : item.key}`);
+                  if (mobileMenuOpen) setMobileMenuOpen(false);
+                }
+              }}
+              className={`
+                flex items-center gap-3 px-4 py-2 m-1 cursor-pointer transition-colors
+                ${
+                  getActiveKey() === item.key
+                    ? "bg-red-500 text-white"
+                    : "hover:bg-red-500 hover:text-white text-gray-700"
+                }
+              `}
+            >
+              <item.icon style={{ fontSize: "20px", minWidth: 20 }} />
+              {!collapsed && <span className="text-sm">{item.label}</span>}
+            </div>
+          ))}
+        </nav>
+      </div>
+
+      {/* Overlay for mobile sidebar when open */}
+      {mobileMenuOpen && (
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 bg-black opacity-30 z-20 md:hidden"
         />
-      </Sider>
+      )}
 
-      <Layout>
-        <Header
-          style={{
-            background: colorBgContainer,
-            padding: "0 10px",
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
-          {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-            onClick: () => setCollapsed(!collapsed),
-            style: { fontSize: 20, color: "#ef4444", marginTop: "18px" },
-          })}
-          <div style={{ fontWeight: 600 }}>Welcome, Restaurant</div>
-        </Header>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="flex justify-between items-center px-5 py-2 bg-white border-b border-gray-200">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden text-red-500 focus:outline-none"
+              aria-label="Toggle sidebar"
+            >
+              <MenuIcon />
+            </button>
 
-        <Content style={{ margin: "0px 0px", padding: 20, minHeight: 280, background: colorBgContainer }}>
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="hidden md:block text-red-500 focus:outline-none"
+              aria-label="Toggle collapse sidebar"
+            >
+              {collapsed ? <MenuIcon /> : <CloseIcon />}
+            </button>
+          </div>
+
+          <div className="flex items-center gap-1 text-sm text-red-500 font-medium">
+            <IconButton onClick={handleClick}>
+              <Avatar
+                src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                sx={{ width: 30, height: 30 }}
+              />
+            </IconButton>
+            <span className="hidden sm:inline">{adminName}</span>
+
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  navigate("/restaurant/profile");
+                }}
+              >
+                My Profile
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  navigate("/reset-password");
+                }}
+              >
+                Reset Password
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  handleLogout();
+                }}
+              >
+                Logout
+              </MenuItem>
+            </Menu>
+          </div>
+        </div>
+
+        {/* Page Content */}
+        <div className="p-4 flex-1 overflow-y-auto page_layout">
           <Outlet />
-        </Content>
-      </Layout>
-    </Layout>
+        </div>
+      </div>
+    </div>
   );
 };
 

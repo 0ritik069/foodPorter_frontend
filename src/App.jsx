@@ -33,6 +33,9 @@ import RestaurantProfile from "./pages/RestaurantProfile/RestaurantProfile";
 import RestaurantNotifications from "./pages/RestaurantNotifications.js/RestaurantNotifications";
 import OtpVerification from "./pages/OtpVerification";
 import Policies from "./pages/Policie/Policies";
+import RestaurantSupport from "./pages/RestaurantSupport/RestaurantSupport";
+import RestaurantAbout from "./pages/RestaurantAbout/RestaurantAbout";
+import RestaurantContact from "./pages/RestaurantContact/RestaurantContact";
 function App() {
   return (
     <BrowserRouter>
@@ -78,6 +81,9 @@ function App() {
           <Route path="offers" element={<Offers />} />
           <Route path="notifications" element={<RestaurantNotifications />} />
           <Route path="profile" element={<RestaurantProfile />} />
+          <Route path="support" element={<RestaurantSupport/>}/>
+          <Route path="about" element={<RestaurantAbout/>}/>
+          <Route path="contact" element={<RestaurantContact/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

@@ -13,23 +13,20 @@ import {
   DialogContent,
   DialogActions,
   Typography,
+  TextField,
+  MenuItem,
+  Box,
+  InputAdornment,
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 
 const ManageOrders = () => {
-  const [open, setOpen] = useState(false);
+  const [openView, setOpenView] = useState(false);
+  const [openAdd, setOpenAdd] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const showModal = (order) => {
-    setSelectedOrder(order);
-    setOpen(true);
-  };
-
-  const handleCancel = () => {
-    setOpen(false);
-    setSelectedOrder(null);
-  };
-
-  const orderData = [
+  const [orders, setOrders] = useState([
     {
       id: "ORD001",
       customer: "Ravi Sharma",
@@ -58,13 +55,110 @@ const ManageOrders = () => {
       amount: 250,
       status: "Cancelled",
     },
-  ];
+  ]);
+
+  const [newOrder, setNewOrder] = useState({
+    customer: "",
+    items: "",
+    amount: "",
+    status: "Pending",
+  });
+
+  const showModal = (order) => {
+    setSelectedOrder(order);
+    setOpenView(true);
+  };
+
+  const handleCancelView = () => {
+    setOpenView(false);
+    setSelectedOrder(null);
+  };
+
+  const handleAddOpen = () => {
+    setOpenAdd(true);
+  };
+
+  const handleAddCancel = () => {
+    setOpenAdd(false);
+    setNewOrder({
+      customer: "",
+      items: "",
+      amount: "",
+      status: "Pending",
+    });
+  };
+
+  const handleChange = (e) => {
+    setNewOrder({ ...newOrder, [e.target.name]: e.target.value });
+  };
+
+  const handleAddOrder = () => {
+    if (!newOrder.customer || !newOrder.items || !newOrder.amount) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    const newId = `ORD${(orders.length + 1).toString().padStart(3, "0")}`;
+    const orderToAdd = {
+      id: newId,
+      customer: newOrder.customer,
+      items: newOrder.items,
+      amount: parseFloat(newOrder.amount),
+      status: newOrder.status,
+    };
+
+    setOrders([...orders, orderToAdd]);
+    handleAddCancel();
+  };
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value.toLowerCase());
+  };
+
+  const filteredOrders = orders.filter((order) =>
+    order.id.toLowerCase().includes(searchTerm) ||
+    order.customer.toLowerCase().includes(searchTerm) ||
+    order.items.toLowerCase().includes(searchTerm)
+  );
 
   return (
     <div className="p-4">
-      <Typography variant="h5" sx={{ fontWeight: 600 }}gutterBottom>
-        Manage Orders
-      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} flexWrap="wrap" gap={2}>
+        <Typography variant="h5" fontWeight={600}>
+          Manage Orders
+        </Typography>
+        <Box display="flex" alignItems="center" gap={2}>
+          <TextField
+            size="small"
+            placeholder="Search orders..."
+            variant="outlined"
+            onChange={handleSearch}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon color="action" />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button
+            variant="contained"
+            color="success"
+            sx={{
+              fontWeight: 600,
+              textTransform: "none",
+              backgroundColor: "#facc15",
+              color: "#000",
+              "&:hover": {
+                backgroundColor: "#eab308",
+              },
+            }}
+            onClick={handleAddOpen}
+          >
+            Add Order
+          </Button>
+        </Box>
+      </Box>
 
       <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
         <Table stickyHeader>
@@ -79,7 +173,7 @@ const ManageOrders = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {orderData.map((order, index) => (
+            {filteredOrders.map((order, index) => (
               <TableRow key={index}>
                 <TableCell>{order.id}</TableCell>
                 <TableCell>{order.customer}</TableCell>
@@ -98,26 +192,88 @@ const ManageOrders = () => {
                 </TableCell>
               </TableRow>
             ))}
+            {filteredOrders.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  No matching orders found.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
 
-      <Dialog open={open} onClose={handleCancel}>
+      {/* View Order Modal */}
+      <Dialog open={openView} onClose={handleCancelView}>
         <DialogTitle>Order Details</DialogTitle>
         <DialogContent dividers>
           {selectedOrder && (
-            <div>
+            <>
               <Typography variant="body1"><strong>Order ID:</strong> {selectedOrder.id}</Typography>
               <Typography variant="body1"><strong>Customer:</strong> {selectedOrder.customer}</Typography>
               <Typography variant="body1"><strong>Items:</strong> {selectedOrder.items}</Typography>
               <Typography variant="body1"><strong>Amount:</strong> ₹{selectedOrder.amount}</Typography>
               <Typography variant="body1"><strong>Status:</strong> {selectedOrder.status}</Typography>
-            </div>
+            </>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCancel} color="secondary">
+          <Button onClick={handleCancelView} color="secondary">
             Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add Order Modal */}
+      <Dialog open={openAdd} onClose={handleAddCancel}>
+        <DialogTitle>Add New Order</DialogTitle>
+        <DialogContent dividers>
+          <TextField
+            fullWidth
+            label="Customer Name"
+            name="customer"
+            value={newOrder.customer}
+            onChange={handleChange}
+            margin="normal"
+          />
+          <TextField
+            fullWidth
+            label="Items"
+            name="items"
+            value={newOrder.items}
+            onChange={handleChange}
+            margin="normal"
+          />
+          <TextField
+            fullWidth
+            label="Amount"
+            name="amount"
+            type="number"
+            value={newOrder.amount}
+            onChange={handleChange}
+            margin="normal"
+          />
+          <TextField
+            fullWidth
+            select
+            label="Status"
+            name="status"
+            value={newOrder.status}
+            onChange={handleChange}
+            margin="normal"
+          >
+            <MenuItem value="Pending">Pending</MenuItem>
+            <MenuItem value="Preparing">Preparing</MenuItem>
+            <MenuItem value="Delivered">Delivered</MenuItem>
+            <MenuItem value="Cancelled">Cancelled</MenuItem>
+          </TextField>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAddCancel} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleAddOrder} color="primary" variant="contained">
+            Add
           </Button>
         </DialogActions>
       </Dialog>

@@ -1,10 +1,21 @@
-import React from "react";
-import { Typography, Card, Tag, Row, Col } from "antd";
+import React, { useState } from "react";
+import {
+  Typography,
+  Card,
+  Tag,
+  Row,
+  Col,
+  Modal,
+  Button,
+  Switch,
+  message,
+} from "antd";
+import { EyeOutlined } from "@ant-design/icons";
 import "./Offers.css";
 
 const { Title } = Typography;
 
-const offersData = [
+const initialOffersData = [
   {
     key: "1",
     title: "Flat 20% Off",
@@ -37,6 +48,32 @@ const statusColors = {
 };
 
 const Offers = () => {
+  const [offers, setOffers] = useState(initialOffersData);
+  const [selectedOffer, setSelectedOffer] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleToggleStatus = (key) => {
+    const updatedOffers = offers.map((offer) => {
+      if (offer.key === key) {
+        const newStatus = offer.status === "Active" ? "Expired" : "Active";
+        message.success(`Offer status changed to ${newStatus}`);
+        return { ...offer, status: newStatus };
+      }
+      return offer;
+    });
+    setOffers(updatedOffers);
+  };
+
+  const showModal = (offer) => {
+    setSelectedOffer(offer);
+    setIsModalVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setSelectedOffer(null);
+  };
+
   return (
     <div className="offers-container">
       <Title level={3} className="page-heading">
@@ -44,7 +81,7 @@ const Offers = () => {
       </Title>
 
       <Row gutter={[16, 16]}>
-        {offersData.map((offer) => (
+        {offers.map((offer) => (
           <Col xs={24} sm={12} md={8} key={offer.key}>
             <Card className="offer-card" bordered={false}>
               <div className="offer-header">
@@ -52,12 +89,59 @@ const Offers = () => {
                 <Tag color={statusColors[offer.status]}>{offer.status}</Tag>
               </div>
               <p className="offer-description">{offer.description}</p>
-              <p className="offer-code">Use Code: <strong>{offer.code}</strong></p>
+              <p className="offer-code">
+                Use Code: <strong>{offer.code}</strong>
+              </p>
               <p className="offer-expiry">Valid till: {offer.expiry}</p>
+              <div className="offer-actions">
+                <Button
+                  type="link"
+                  icon={<EyeOutlined />}
+                  onClick={() => showModal(offer)}
+                >
+                  View
+                </Button>
+                <Switch
+                  checked={offer.status === "Active"}
+                  onChange={() => handleToggleStatus(offer.key)}
+                  checkedChildren="Active"
+                  unCheckedChildren="Expired"
+                />
+              </div>
             </Card>
           </Col>
         ))}
       </Row>
+
+      <Modal
+        title="Offer Details"
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        footer={null}
+      >
+        {selectedOffer && (
+          <div className="offer-modal-content">
+            <p>
+              <strong>Title:</strong> {selectedOffer.title}
+            </p>
+            <p>
+              <strong>Description:</strong> {selectedOffer.description}
+            </p>
+            <p>
+              <strong>Code:</strong> {selectedOffer.code}
+            </p>
+            <p>
+              <strong>Expiry:</strong> {selectedOffer.expiry}
+            </p>
+            <p>
+              <strong>Status:</strong>{" "}
+              <Tag color={statusColors[selectedOffer.status]}>
+                {selectedOffer.status}
+              </Tag>
+            </p>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
