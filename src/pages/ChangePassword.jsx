@@ -51,14 +51,7 @@ const ChangePassword = (props) => {
             "success"
           );
         }
-        // if (response.data.success) {
-        //   Swal.fire(
-        //     "Password  update  successfully!",
-        //     "You clicked the button!",
-        //     "success"
-        //   );
-        //   navigate("/admin");
-        // }
+     
       })
       .catch((error) => {
         console.log(error);
