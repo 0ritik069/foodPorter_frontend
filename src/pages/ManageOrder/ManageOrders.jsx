@@ -155,7 +155,7 @@ const ManageOrders = () => {
             }}
             onClick={handleAddOpen}
           >
-            Add Order
+            +Add Order
           </Button>
         </Box>
       </Box>

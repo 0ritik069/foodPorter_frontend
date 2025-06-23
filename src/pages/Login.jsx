@@ -1,116 +1,133 @@
 import React, { useState } from "react";
-import { TextField } from "@mui/material";
+import axios from "axios";
+import {
+  TextField,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import image from "../assets/logo2.jpeg";
-import bgImage from "../assets/home.jpg";
-import { useDispatch, useSelector } from "react-redux";
-import { loginAdmin } from "../slices/login/adminSlice";
+import logo from "../assets/logo2.jpeg";
+import bg from "../assets/home.jpg";
+
+/* Dashboard path helper */
+const getDashboardPath = (role) =>
+  role === "admin" ? "/admin" : "/restaurant";
 
 function Login() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { error } = useSelector((state) => state.admin);
-  const [email, setEmail] = useState("");
+  /* local state */
+  const [role, setRole]       = useState("admin");   
+  const [email, setEmail]     = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError]     = useState("");
+  const [loading, setLoading] = useState(false);
 
+  /* submit */
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    if (!email || !password) {
-      Swal.fire("Error", "Please enter both email and password", "error");
-      return;
-    }
-
-    const credentials = { email, password };
+    if (!email || !password)
+      return Swal.fire("Error", "Enter email + password", "error");
 
     try {
-      const resultAction = await dispatch(loginAdmin(credentials));
+      setLoading(true);
 
-      if (loginAdmin.fulfilled.match(resultAction)) {
-        const { token, user } = resultAction.payload;
-        const { id, name, email, role } = user;
+      /* dynamic endpoint */
+      const url = `/api/auth/login/${role}`;
+      const { data } = await axios.post(
+        url,
+        { email, password },
+        { withCredentials: true }
+      );
 
-        localStorage.setItem("id", id);
-        localStorage.setItem("token", token);
-        localStorage.setItem("name", name);
-        localStorage.setItem("email", email);
-        localStorage.setItem("role", role);
+      const { token, user } = data;
+      const { id, name, email: uEmail, role: dbRole } = user;
 
-        navigate("/admin");
-      } else {
-        Swal.fire(
-          "Login Failed",
-          resultAction.payload?.message || "Invalid credentials",
-          "error"
-        );
-      }
-    } catch (error) {
-      console.error("Unexpected error:", error.message);
-      Swal.fire("Error", error.message, "error");
+      /* localStorage */
+      localStorage.setItem("id", id);
+      localStorage.setItem("token", token);
+      localStorage.setItem("name", name);
+      localStorage.setItem("email", uEmail);
+      localStorage.setItem("role", dbRole);
+
+      Swal.fire("Success", "Logged in!", "success");
+      navigate(getDashboardPath(dbRole));
+    } catch (err) {
+      const msg =
+        err.response?.data?.message || err.message || "Login failed";
+      setError(msg);
+      Swal.fire("Login Failed", msg, "error");
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const forgotPassword = () => {
-    navigate("/forgot-password");
   };
 
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-cover bg-center"
-      style={{ backgroundImage: `url(${bgImage})` }}
+      style={{ backgroundImage: `url(${bg})` }}
     >
       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
         <div className="text-center mb-6">
-          <img src={image} alt="Logo" className="mx-auto mb-3 w-24" />
-          <h4 className="text-2xl font-bold text-gray-800">Admin</h4>
+          <img src={logo} alt="Logo" className="mx-auto mb-3 w-24" />
+          <h4 className="text-2xl font-bold text-gray-800">Login</h4>
         </div>
+
         <form onSubmit={handleLogin}>
-          <div className="mb-4">
-            <TextField
-              fullWidth
-              label="Email"
-              name="email"
-              type="text"
-              autoComplete="off"
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-            />
-          </div>
-          <div className="mb-4">
-            <TextField
-              fullWidth
-              label="Password"
-              name="password"
-              type="password"
-              onChange={(e) => setPassword(e.target.value)}
-              value={password}
-            />
-          </div>
-          {error && typeof error === "string" && (
-            <p className="text-red-600 text-sm">{error}</p>
-          )}
-          {error?.message && (
-            <p className="text-red-600 text-sm">{error.message}</p>
-          )}
-          <div className="text-center mt-6">
-            <button
-              type="submit"
-              className="bg-red-600 hover:bg-red-500 text-white px-6 py-2 rounded-md inline-flex items-center gap-1"
+          {/* Role selector */}
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel id="role-label">Role</InputLabel>
+            <Select
+              labelId="role-label"
+              value={role}
+              label="Role"
+              onChange={(e) => setRole(e.target.value)}
             >
-              Login
-            </button>
-          </div>
-        </form>
-        <div className="text-center mt-4">
-          <span
-            className="text-sm text-blue-600 hover:underline cursor-pointer"
-            onClick={forgotPassword}
+              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="restaurant">Restaurant Owner</MenuItem>
+            </Select>
+          </FormControl>
+
+          <TextField
+            fullWidth
+            sx={{ mb: 2 }}
+            label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="off"
+          />
+
+          <TextField
+            fullWidth
+            sx={{ mb: 2 }}
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          {error && <p className="text-red-600 text-sm">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded-md ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-            Forgot password?
-          </span>
-        </div>
+            {loading ? "Logging in…" : "Login"}
+          </button>
+        </form>
+
+        <p
+          className="text-center mt-4 text-sm text-blue-600 hover:underline cursor-pointer"
+          onClick={() => navigate("/forgot-password")}
+        >
+          Forgot password?
+        </p>
       </div>
     </div>
   );

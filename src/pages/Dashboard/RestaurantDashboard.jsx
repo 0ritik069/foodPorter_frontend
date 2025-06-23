@@ -56,7 +56,7 @@ const RestaurantDashboard = () => {
         Restaurant Dashboard
       </Typography>
 
-      {/* KPI Cards */}
+     
       <Grid container spacing={3}>
         {cardData.map((card, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
@@ -83,7 +83,7 @@ const RestaurantDashboard = () => {
         ))}
       </Grid>
 
-      {/* Orders Chart */}
+    
       <Card sx={{ mt: 5 }} elevation={2}>
         <CardContent>
           <Typography variant="h6" fontWeight={600} mb={2}>

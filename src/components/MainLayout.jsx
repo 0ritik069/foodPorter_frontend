@@ -84,7 +84,7 @@ const MainLayout = () => {
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
-      {/* Sidebar */}
+    
       <div
         className={`
           bg-white transition-width duration-300 ease-in-out
@@ -105,7 +105,7 @@ const MainLayout = () => {
           <img
             src={logo_png}
             alt="Logo"
-            style={{ width: collapsed ? 50 : 80 }}
+            style={{ width: collapsed ? 30 : 40 }}
             className="transition-all duration-300"
           />
         </div>
@@ -135,7 +135,7 @@ const MainLayout = () => {
         </nav>
       </div>
 
-      {/* Overlay for mobile sidebar when open */}
+      
       {mobileMenuOpen && (
         <div
           onClick={() => setMobileMenuOpen(false)}
@@ -143,12 +143,12 @@ const MainLayout = () => {
         />
       )}
 
-      {/* Main Content */}
+     
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
+       
         <div className="flex justify-between items-center px-5 py-2 bg-white border-b border-gray-200">
           <div className="flex items-center gap-3">
-            {/* Hamburger for mobile */}
+          
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden text-red-500 focus:outline-none"
@@ -157,7 +157,7 @@ const MainLayout = () => {
               <MenuIcon />
             </button>
 
-            {/* Collapse button for desktop */}
+           
             <button
               onClick={() => setCollapsed(!collapsed)}
               className="hidden md:block text-red-500 focus:outline-none"
@@ -191,7 +191,7 @@ const MainLayout = () => {
           </div>
         </div>
 
-        {/* Page Content */}
+        
         <div className="p-4 flex-1 overflow-y-auto page_layout">
           <Outlet />
         </div>
