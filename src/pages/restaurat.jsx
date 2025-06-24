@@ -91,17 +91,6 @@ export default function ManageRestaurants() {
     }
   };
 
-  const openEditModal = async (id) => {
-    try {
-      const { data } = await API.get(`/restaurants/${id}`);
-      const res = normalize(data.data || data);
-      setFormData({ ...emptyForm, ...res, preview: res.image, image: null });
-      setOpenEdit(true);
-    } catch {
-      showToast("Unable to fetch", "error");
-    }
-  };
-
   const handleDelete = async (id) => {
     const c = await Swal.fire({
       title: "Delete?",
@@ -115,7 +104,7 @@ export default function ManageRestaurants() {
       await API.delete(`/restaurants/${id}`);
       fetchRestaurants();
       showToast("Deleted");
-    } catch {
+    } catch (err) {
       showToast("Delete failed", "error");
     }
   };
@@ -129,6 +118,11 @@ export default function ManageRestaurants() {
     } catch {
       showToast("Status update failed", "error");
     }
+  };
+
+  const openEditModal = (r) => {
+    setFormData({ ...emptyForm, ...r, preview: r.image, image: null });
+    setOpenEdit(true);
   };
 
   const handleSave = async () => {
@@ -146,7 +140,7 @@ export default function ManageRestaurants() {
       showToast("Restaurant updated");
       setOpenEdit(false);
       fetchRestaurants();
-    } catch {
+    } catch (err) {
       showToast("Update failed", "error");
     }
   };
@@ -170,7 +164,7 @@ export default function ManageRestaurants() {
       setOpenAdd(false);
       setAddData({ ...emptyForm, password: "" });
       fetchRestaurants();
-    } catch {
+    } catch (err) {
       showToast("Creation failed", "error");
     }
   };
@@ -264,7 +258,7 @@ export default function ManageRestaurants() {
                       <IconButton size="small" onClick={() => handleView(r.id)}>
                         <VisibilityIcon fontSize="inherit" />
                       </IconButton>
-                      <IconButton size="small" onClick={() => openEditModal(r.id)}>
+                      <IconButton size="small" onClick={() => openEditModal(r)}>
                         <EditIcon fontSize="inherit" sx={{ color: "#f59e0b" }} />
                       </IconButton>
                       <IconButton size="small" onClick={() => handleDelete(r.id)}>
@@ -287,103 +281,6 @@ export default function ManageRestaurants() {
           />
         </Paper>
       )}
-
-      <Modal open={openView} onClose={() => setOpenView(false)}>
-        <Box sx={modalStyle}>
-          <Typography variant="h6" mb={2} fontWeight={600}>
-            Restaurant Details
-          </Typography>
-          {restaurantDetails ? (
-            <Table size="small">
-              <TableBody>
-                {Object.entries({
-                  Name: restaurantDetails.name,
-                  Owner: restaurantDetails.ownerName,
-                  Email: restaurantDetails.email,
-                  Phone: restaurantDetails.phone,
-                  Address: restaurantDetails.address,
-                  Status: restaurantDetails.status,
-                }).map(([k, v]) => (
-                  <TableRow key={k}>
-                    <TableCell sx={{ fontWeight: 600 }}>{k}</TableCell>
-                    <TableCell>
-                      {k === "Status" ? (
-                        <Chip
-                          label={v}
-                          size="small"
-                          color={v === "open" ? "success" : "error"}
-                        />
-                      ) : (
-                        v
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <CircularProgress />
-          )}
-          <Box textAlign="right" mt={2}>
-            <Button variant="contained" onClick={() => setOpenView(false)}>
-              Close
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
-
-      <Modal open={openEdit} onClose={() => setOpenEdit(false)}>
-        <Box sx={modalStyle}>
-          <Typography variant="h6" mb={2}>
-            Edit Restaurant
-          </Typography>
-
-          <Avatar
-            sx={{ width: 56, height: 56, mb: 1 }}
-            src={
-              formData.image
-                ? URL.createObjectURL(formData.image)
-                : getImageUrl(formData.preview)
-            }
-            alt="preview"
-          />
-
-          {["name", "ownerName", "email", "phone", "address"].map((f) => (
-            <TextField
-              key={f}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              label={f.charAt(0).toUpperCase() + f.slice(1)}
-              value={formData[f] || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, [f]: e.target.value })
-              }
-            />
-          ))}
-
-          <Button component="label" sx={{ mb: 2 }}>
-            Upload Image
-            <input
-              hidden
-              accept="image/*"
-              type="file"
-              onChange={(e) =>
-                setFormData({ ...formData, image: e.target.files?.[0] })
-              }
-            />
-          </Button>
-
-          <Box textAlign="right">
-            <Button sx={{ mr: 1 }} onClick={() => setOpenEdit(false)}>
-              Cancel
-            </Button>
-            <Button variant="contained" onClick={handleSave}>
-              Save
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
     </Box>
   );
 }

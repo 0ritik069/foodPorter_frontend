@@ -12,7 +12,7 @@ import Swal from "sweetalert2";
 import logo from "../assets/logo2.jpeg";
 import bg from "../assets/home.jpg";
 
-/* Dashboard path helper */
+
 const getDashboardPath = (role) =>
   role === "admin" ? "/admin" : "/restaurant";
 

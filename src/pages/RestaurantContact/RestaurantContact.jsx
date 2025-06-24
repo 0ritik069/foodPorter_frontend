@@ -23,16 +23,17 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you can add form validation and API call
+  
     setSubmitted(true);
     setFormData({ name: "", email: "", message: "" });
   };
 
   return (
     <Box sx={{ maxWidth: 700, mx: "auto", p: 3 }}>
-      <Typography variant="h4" component="h1" gutterBottom fontWeight="bold" color="primary">
+       <Typography variant="h5" fontWeight={600}>Contact Us</Typography>
+      {/* <Typography variant="h4" component="h1" gutterBottom fontWeight="bold" color="primary">
         Contact Us
-      </Typography>
+      </Typography> */}
 
       <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
         <Typography variant="body1" gutterBottom>

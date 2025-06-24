@@ -19,9 +19,14 @@ const AboutUs = () => {
         margin: "auto",
       }}
     >
-      <Typography variant="h4" component="h1" gutterBottom fontWeight="bold" color="primary">
+       <Typography variant="h5" fontWeight={600}>About Us</Typography>
+
+       {/* <Typography variant="h5" gutterBottom>
+       About Us
+      </Typography> */}
+      {/* <Typography variant="h5" component="h1" gutterBottom fontWeight="bold" color="primary">
         About Us
-      </Typography>
+      </Typography> */}
 
       {/* Restaurant Story */}
       <Paper elevation={3} sx={{ padding: 3, marginBottom: 4 }}>

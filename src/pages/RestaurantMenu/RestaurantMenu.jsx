@@ -76,7 +76,9 @@ export default function RestaurantMenu({ restaurantId }) {
         ? `/dishes/restaurant/${restaurantId}`
         : '/dishes';
       const { data } = await API.get(url, { signal });
+       console.log(data.data);
       setDishes(data.data || data);
+     
     } catch (err) {
       if (!axios.isCancel(err))
         showToast('Failed to load dishes', 'error');
@@ -166,7 +168,7 @@ export default function RestaurantMenu({ restaurantId }) {
 
   const toggleAvailability = async (dish) => {
     try {
-      await API.put(`/dishes/${dish.id}`, {
+      await API.patch(`/dishes/${dish.id}/status`, {
         availability: !dish.availability
       });
       fetchMenu();
@@ -184,7 +186,7 @@ export default function RestaurantMenu({ restaurantId }) {
     <Box p={3}>
       
       <Box mb={3} display="flex" justifyContent="space-between" flexWrap="wrap" gap={2}>
-        <Typography variant="h5" fontWeight={600}>Menu<span style={{ fontWeight:300 }}> Management</span></Typography>
+        <Typography variant="h5" fontWeight={600}>Menu Management</Typography>
         <Box display="flex" gap={2} flexWrap="wrap">
           <TextField size="small" label="Search items" onChange={(e)=>setSearch(e.target.value)} />
           <Button variant="contained" sx={{ backgroundColor:'#facc15', color:'#000', textTransform:'none', '&:hover':{backgroundColor:'#eab308'} }} onClick={openAddDialog}>

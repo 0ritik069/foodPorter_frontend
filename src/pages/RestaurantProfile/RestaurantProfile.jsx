@@ -16,29 +16,31 @@ const profileData = {
 const RestaurantProfile = () => {
   return (
     <Box className="profile-container">
-      <Typography variant="h5" className="page-heading" gutterBottom>
+        <Typography variant="h5" fontWeight={600}>Restaurant Profile</Typography>
+      
+      {/* <Typography variant="h5" className="page-heading" gutterBottom>
         Restaurant Profile
-      </Typography>
+      </Typography> */}
 
       <Card className="profile-card" sx={{ padding: 3 }}>
         <Grid container spacing={3}>
           <Grid item xs={12} md={3} className="avatar-col">
-            <Avatar sx={{ bgcolor: '#d32f2f', width: 80, height: 80 }}>
+            <Avatar sx={{ bgcolor: '#d32f2f', width: 90, height: 85 }}>
               <StorefrontIcon fontSize="large" />
             </Avatar>
           </Grid>
           <Grid item xs={12} md={9}>
             <Box className="profile-details">
               <Typography variant="subtitle1"><strong>Restaurant Name:</strong> {profileData.name}</Typography>
-              <Divider sx={{ my: 1 }} />
+              <Divider sx={{ my: 2 }} />
               <Typography variant="subtitle1"><strong>Owner:</strong> {profileData.owner}</Typography>
-              <Divider sx={{ my: 1 }} />
+              <Divider sx={{ my: 2 }} />
               <Typography variant="subtitle1"><strong>Email:</strong> {profileData.email}</Typography>
-              <Divider sx={{ my: 1 }} />
+              <Divider sx={{ my: 2 }} />
               <Typography variant="subtitle1"><strong>Phone:</strong> {profileData.phone}</Typography>
-              <Divider sx={{ my: 1 }} />
+              <Divider sx={{ my: 2 }} />
               <Typography variant="subtitle1"><strong>Address:</strong> {profileData.address}</Typography>
-              <Divider sx={{ my: 1 }} />
+              <Divider sx={{ my: 2 }} />
               <Typography variant="subtitle1"><strong>Registered On:</strong> {profileData.registeredOn}</Typography>
             </Box>
 

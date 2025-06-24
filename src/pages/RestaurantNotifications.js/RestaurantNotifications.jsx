@@ -68,9 +68,10 @@ const RestaurantNotifications = () => {
 
   return (
     <Box className="notifications-container" sx={{ padding: 3 }}>
-      <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" fontWeight={600}>Notifications</Typography>
+      {/* <Typography variant="h5" gutterBottom>
         Notifications
-      </Typography>
+      </Typography> */}
 
       <List>
         {notifications.map((item) => (

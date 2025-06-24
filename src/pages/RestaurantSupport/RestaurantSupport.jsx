@@ -38,9 +38,10 @@ const RestaurantSupport = () => {
 
   return (
     <Box className="support-container">
-      <Typography variant="h5" className="page-heading">
+       <Typography variant="h5" fontWeight={600}>Support & Help Center</Typography>
+      {/* <Typography variant="h5" className="page-heading">
         Support & Help Center
-      </Typography>
+      </Typography> */}
 
       <Grid container spacing={2} className="support-info">
         <Grid item xs={12} md={6}>
