@@ -30,7 +30,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-
 const API = axios.create({ baseURL: 'http://192.168.1.80:5000/api' });
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
@@ -38,8 +37,7 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
-
-const PER_PAGE = 8;
+const PER_PAGE = 9;
 const emptyForm = {
   name: '',
   category: '',
@@ -49,23 +47,17 @@ const emptyForm = {
 };
 
 export default function RestaurantMenu({ restaurantId }) {
-
   const [dishes, setDishes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
-
- 
   const [openView, setOpenView] = useState(false);
   const [details, setDetails] = useState(null);
-
- 
   const [openDlg, setOpenDlg] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
 
-  
   const showToast = (title, icon = 'success') =>
     Swal.fire({ title, toast: true, timer: 2000, position: 'top', icon });
 
@@ -76,9 +68,11 @@ export default function RestaurantMenu({ restaurantId }) {
         ? `/dishes/restaurant/${restaurantId}`
         : '/dishes';
       const { data } = await API.get(url, { signal });
-       console.log(data.data);
-      setDishes(data.data || data);
-     
+      const formatted = (data.data || []).map(dish => ({
+        ...dish,
+        availability: dish.is_available === 1 
+      }));
+      setDishes(formatted);
     } catch (err) {
       if (!axios.isCancel(err))
         showToast('Failed to load dishes', 'error');
@@ -93,11 +87,16 @@ export default function RestaurantMenu({ restaurantId }) {
     return () => c.abort();
   }, [restaurantId]);
 
-  
   const handleView = async (id) => {
     try {
       const { data } = await API.get(`/dishes/${id}`);
-      setDetails(data.data || data);
+      const dish = data.data || data;
+      setDetails({
+        name: dish.name,
+        category: dish.category_name || dish.category,
+        price: dish.price,
+        availability: dish.is_available === 1
+      });
       setOpenView(true);
     } catch {
       showToast('Unable to fetch item', 'error');
@@ -177,14 +176,11 @@ export default function RestaurantMenu({ restaurantId }) {
     }
   };
 
-  
   const filtered = dishes.filter((d) => d.name.toLowerCase().includes(search.toLowerCase()));
   const slice = filtered.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
 
- 
   return (
     <Box p={3}>
-      
       <Box mb={3} display="flex" justifyContent="space-between" flexWrap="wrap" gap={2}>
         <Typography variant="h5" fontWeight={600}>Menu Management</Typography>
         <Box display="flex" gap={2} flexWrap="wrap">
@@ -195,12 +191,11 @@ export default function RestaurantMenu({ restaurantId }) {
         </Box>
       </Box>
 
-     
       {loading ? (
         <Box display="flex" height={300} alignItems="center" justifyContent="center"><CircularProgress/></Box>
       ) : (
         <Paper>
-          <TableContainer sx={{ maxHeight: 500 }}>
+          <TableContainer sx={{ maxHeight: 720 }}>
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
@@ -218,10 +213,10 @@ export default function RestaurantMenu({ restaurantId }) {
                       )}
                     </TableCell>
                     <TableCell><b>{d.name}</b></TableCell>
-                    <TableCell>{d.category}</TableCell>
+                    <TableCell>{d.category_name || d.category}</TableCell>
                     <TableCell>₹{d.price}</TableCell>
                     <TableCell>
-                      <Chip label={d.availability ? 'Available':'Unavailable'} color={d.availability?'success':'error'} size="small" sx={{ mr:1 }} />
+                      <Chip label={d.availability ? 'Available':'Unavailable'} color={d.availability ? 'success' : 'error'} size="small" sx={{ mr:1 }} />
                       <Switch size="small" checked={d.availability} onChange={()=>toggleAvailability(d)} />
                     </TableCell>
                     <TableCell>
@@ -233,7 +228,7 @@ export default function RestaurantMenu({ restaurantId }) {
                     </TableCell>
                   </TableRow>
                 ))}
-                {slice.length===0 && (
+                {slice.length === 0 && (
                   <TableRow><TableCell colSpan={6} align="center">No menu items found.</TableCell></TableRow>
                 )}
               </TableBody>
@@ -243,25 +238,35 @@ export default function RestaurantMenu({ restaurantId }) {
         </Paper>
       )}
 
-   
       <Modal open={openView} onClose={()=>setOpenView(false)}>
         <Box sx={modalStyle}>
           <Typography variant="h6" mb={2} fontWeight={600}>Dish Details</Typography>
           {details ? (
-            <Table size="small"><TableBody>{Object.entries({
-              Name: details.name,
-              Category: details.category,
-              Price: `₹${details.price}`,
-              Availability: details.availability? 'Available':'Unavailable'
-            }).map(([k,v])=> (
-              <TableRow key={k}><TableCell sx={{fontWeight:600}}>{k}</TableCell><TableCell>{v}</TableCell></TableRow>
-            ))}</TableBody></Table>
-          ) : <CircularProgress/>}
+            <Table size="small">
+              <TableBody>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
+                  <TableCell>{details.name}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 600 }}>Category</TableCell>
+                  <TableCell>{details.category}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 600 }}>Price</TableCell>
+                  <TableCell>₹{details.price}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 600 }}>Availability</TableCell>
+                  <TableCell>{details.availability ? 'Yes' : 'No'}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          ) : <CircularProgress />}
           <Box textAlign="right" mt={2}><Button variant="contained" onClick={()=>setOpenView(false)}>Close</Button></Box>
         </Box>
       </Modal>
 
-      {/* ADD / EDIT DIALOG */}
       <Dialog open={openDlg} onClose={()=>setOpenDlg(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{isEdit ? 'Edit Dish' : 'Add Dish'}</DialogTitle>
         <DialogContent sx={{ mt:1, display:'flex', flexDirection:'column', gap:2 }}>
@@ -275,7 +280,7 @@ export default function RestaurantMenu({ restaurantId }) {
         </DialogContent>
         <DialogActions>
           <Button onClick={()=>setOpenDlg(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>{isEdit ? 'Update':'Save'}</Button>
+          <Button variant="contained" onClick={handleSave}>{isEdit ? 'Update' : 'Save'}</Button>
         </DialogActions>
       </Dialog>
     </Box>
