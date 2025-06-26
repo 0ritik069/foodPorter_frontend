@@ -25,7 +25,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const BASE_URL = "http://192.168.1.80:5000";
+const BASE_URL = "http://192.168.1.82:5000";
 const API = axios.create({ baseURL: `${BASE_URL}/api` });
 const PER_PAGE = 10;
 
@@ -64,7 +64,7 @@ export default function ManageRestaurants() {
   const fetchRestaurants = async (signal) => {
     setLoading(true);
     try {
-      const { data } = await API.get("/restaurants", { signal });
+      const { data } = await API.post("/restaurants/list", { signal });
       const list = (data.data || data).map(normalize);
       setRestaurants(list);
       setError("");
@@ -90,6 +90,8 @@ export default function ManageRestaurants() {
       showToast("Unable to fetch", "error");
     }
   };
+
+  
 
   const openEditModal = async (id) => {
     try {

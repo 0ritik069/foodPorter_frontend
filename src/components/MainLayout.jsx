@@ -179,6 +179,7 @@ const MainLayout = () => {
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
               <MenuItem onClick={handleClose}>My Profile</MenuItem>
               <MenuItem onClick={handleClose}>Change Password</MenuItem>
+              <MenuItem onClick={handleClose}></MenuItem>
               <MenuItem
                 onClick={() => {
                   handleClose();

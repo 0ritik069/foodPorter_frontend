@@ -90,7 +90,7 @@ const Offers = () => {
               </div>
               <p className="offer-description">{offer.description}</p>
               <p className="offer-code">
-                Use Code: <strong>{offer.code}</strong>
+                <strong>Use Code:</strong> {offer.code}
               </p>
               <p className="offer-expiry">Valid till: {offer.expiry}</p>
               <div className="offer-actions">

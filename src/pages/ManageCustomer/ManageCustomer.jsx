@@ -26,7 +26,8 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const AXIOS = axios.create({ baseURL: 'http://192.168.1.80:5000/api' });
+
+const AXIOS = axios.create({ baseURL: import.meta.env.VITE_BASE_URL });
 
 const PER_PAGE = 10;
 
@@ -41,19 +42,15 @@ const emptyForm = {
 
 export default function ManageCustomer() {
   const [customers, setCustomers] = useState([]);
-  const [loading, setLoading]     = useState(false);
-  const [search, setSearch]       = useState('');
-  const [page, setPage]           = useState(0);
-
- 
-  const [openDlg, setOpenDlg]         = useState(false);   
-  const [isEdit, setIsEdit]           = useState(false);
-  const [currentId, setCurrentId]     = useState(null);
-  const [formData, setFormData]       = useState(emptyForm);
-
-  const [openView, setOpenView]       = useState(false);   
+  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(0);
+  const [openDlg, setOpenDlg] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [currentId, setCurrentId] = useState(null);
+  const [formData, setFormData] = useState(emptyForm);
+  const [openView, setOpenView] = useState(false);
   const [customerDetails, setCustomerDetails] = useState(null);
-
 
   const fetchCustomers = async (signal) => {
     try {
@@ -75,7 +72,6 @@ export default function ManageCustomer() {
     return () => controller.abort();
   }, []);
 
-  
   const handleView = async (id) => {
     try {
       const { data } = await AXIOS.get(`/customers/${id}`);
@@ -86,7 +82,6 @@ export default function ManageCustomer() {
     }
   };
 
-  
   const openAddDialog = () => {
     setIsEdit(false);
     setCurrentId(null);
@@ -142,13 +137,11 @@ export default function ManageCustomer() {
     }
   };
 
- 
   const filtered = customers.filter((c) =>
     c.fullName.toLowerCase().includes(search.toLowerCase())
   );
   const slice = filtered.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
 
- 
   return (
     <Box p={3}>
       {/* Header */}
@@ -214,7 +207,7 @@ export default function ManageCustomer() {
         </Paper>
       )}
 
-     
+      {/* View Modal */}
       <Modal open={openView} onClose={() => setOpenView(false)}>
         <Box sx={modalStyle}>
           <Typography variant="h6" mb={2} fontWeight={600}>Customer Details</Typography>
@@ -241,7 +234,7 @@ export default function ManageCustomer() {
         </Box>
       </Modal>
 
-      
+      {/* Add/Edit Dialog */}
       <Dialog open={openDlg} onClose={() => setOpenDlg(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{isEdit ? 'Edit Customer' : 'Add Customer'}</DialogTitle>
         <DialogContent sx={{ mt:1, display:'flex', flexDirection:'column', gap:2 }}>

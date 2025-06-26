@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import Button from "@mui/material/Button";
 import axios from "axios";
-import { baseUrl } from "../features/Api/BaseUrl";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import OtpInput from "react-otp-input";
@@ -25,18 +23,14 @@ function OtpVerification() {
 
     setForgotErr(false);
 
-    const email = localStorage.getItem("email"); 
-    const token = localStorage.getItem("token"); 
+    const email = localStorage.getItem("email");
+    const token = localStorage.getItem("token");
 
     try {
       const response = await axios.post(
         `http://192.168.1.82:5000/api/auth/verify-otp`,
-        { email, otp },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { email, otp: Number(otp) },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data.success) {
@@ -44,7 +38,6 @@ function OtpVerification() {
         navigate("/reset-password");
       }
     } catch (error) {
-      console.error(error);
       setError({ errors: error, isError: true });
     }
   };
@@ -60,51 +53,53 @@ function OtpVerification() {
       className="min-h-screen flex items-center justify-center bg-cover bg-center"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
-      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
         <div className="text-center mb-6">
           <img src={image} alt="Logo" className="mx-auto mb-3 w-24" />
-          <h4 className="text-2xl font-bold text-gray-800">Verify OTP</h4>
+          <h2 className="text-2xl font-bold text-gray-800">OTP Verification</h2>
+          <p className="text-sm text-gray-500">Enter the 6-digit code sent to your email</p>
         </div>
 
-        <span className="text-red-600 block text-center mb-2">
-          {error.isError ? error.errors.response?.data?.msg : ""}
-        </span>
+        {error.isError && (
+          <p className="text-red-600 text-center text-sm mb-2">
+            {error.errors.response?.data?.msg ||
+             error.errors.response?.data?.message ||
+             "Something went wrong"}
+          </p>
+        )}
+
+        {forgotErr && (
+          <p className="text-red-600 text-center text-sm mb-2">
+            Please enter your OTP!
+          </p>
+        )}
 
         <form onSubmit={submitData}>
-          <div className="mb-4">
-            <span className="text-red-600 text-sm">
-              {forgotErr ? "Please enter your OTP!" : ""}
-            </span>
-
-            <div className="d-flex text-center justify-center">
-              <OtpInput
-                inputStyle={{
-                  width: "3rem",
-                  height: "3rem",
-                  fontSize: "1rem",
-                  borderRadius: 4,
-                  border: "2px solid rgba(0,0,0,0.3)",
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-                value={otp}
-                onChange={setOtp}
-                numInputs={6}
-                onKeyPress={handleKey}
-                renderSeparator={<span>-</span>}
-                renderInput={(props) => <input {...props} />}
-              />
-            </div>
-
-            <span className="text-red-600 text-sm">
-              {error.isError ? error.errors?.response?.data?.message : ""}
-            </span>
+          <div className="flex justify-center mb-6">
+            <OtpInput
+              value={otp}
+              onChange={setOtp}
+              numInputs={6}
+              onKeyPress={handleKey}
+              inputType="tel"
+              inputStyle={{
+                width: "3rem",
+                height: "3rem",
+                margin: "0 0.25rem",
+                fontSize: "1.5rem",
+                borderRadius: "8px",
+                border: "1px solid #ccc",
+                textAlign: "center",
+              }}
+              renderSeparator={<span></span>}
+              renderInput={(props) => <input {...props} />}
+            />
           </div>
 
-          <div className="text-center mt-6">
+          <div className="text-center">
             <button
               type="submit"
-              className="bg-red-600 hover:bg-red-500 text-white px-6 py-2 rounded-md inline-flex items-center gap-1"
+              className="bg-red-600 hover:bg-red-500 text-white px-6 py-2 rounded-md text-sm font-medium"
             >
               Verify OTP
             </button>
