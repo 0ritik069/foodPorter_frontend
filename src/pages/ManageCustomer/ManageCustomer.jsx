@@ -26,13 +26,11 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-
 const AXIOS = axios.create({ baseURL: import.meta.env.VITE_BASE_URL });
-
 const PER_PAGE = 10;
 
 const emptyForm = {
-  fullName: '',
+  firstName: '',
   email: '',
   password: '',
   phone: '',
@@ -116,8 +114,8 @@ export default function ManageCustomer() {
   };
 
   const handleSave = async () => {
-    const { fullName, email, phone } = formData;
-    if (!fullName || !email || !phone) {
+    const { firstName, email, phone } = formData;
+    if (!firstName || !email || !phone) {
       Swal.fire('Error', 'Name, Email, Phone required', 'warning');
       return;
     }
@@ -138,7 +136,7 @@ export default function ManageCustomer() {
   };
 
   const filtered = customers.filter((c) =>
-    c.fullName.toLowerCase().includes(search.toLowerCase())
+    c.firstName?.toLowerCase().includes(search.toLowerCase())
   );
   const slice = filtered.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
 
@@ -160,7 +158,7 @@ export default function ManageCustomer() {
         </Box>
       </Box>
 
-      {/* Loader / Table */}
+      
       {loading ? (
         <Box display="flex" height={300} alignItems="center" justifyContent="center"><CircularProgress/></Box>
       ) : (
@@ -181,7 +179,7 @@ export default function ManageCustomer() {
                 {slice.map((c, idx) => (
                   <TableRow key={c.id} hover>
                     <TableCell>{idx + 1 + page * PER_PAGE}</TableCell>
-                    <TableCell>{c.fullName}</TableCell>
+                    <TableCell>{c.firstName}</TableCell>
                     <TableCell>{c.email}</TableCell>
                     <TableCell>{`${c.countryCode || ''} ${c.phone}`}</TableCell>
                     <TableCell>{c.address}</TableCell>
@@ -215,7 +213,7 @@ export default function ManageCustomer() {
             <Table size="small">
               <TableBody>
                 {Object.entries({
-                  Name: customerDetails.fullName,
+                  Name: customerDetails.firstName,
                   Email: customerDetails.email,
                   Phone: `${customerDetails.countryCode || ''} ${customerDetails.phone}`,
                   Address: customerDetails.address || '-',
@@ -238,7 +236,7 @@ export default function ManageCustomer() {
       <Dialog open={openDlg} onClose={() => setOpenDlg(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{isEdit ? 'Edit Customer' : 'Add Customer'}</DialogTitle>
         <DialogContent sx={{ mt:1, display:'flex', flexDirection:'column', gap:2 }}>
-          <TextField label="Full Name" value={formData.fullName} onChange={(e)=>setFormData({...formData, fullName:e.target.value})} />
+          <TextField label="Full Name" value={formData.firstName} onChange={(e)=>setFormData({...formData, firstName:e.target.value})} />
           <TextField label="Email" value={formData.email} onChange={(e)=>setFormData({...formData, email:e.target.value})} />
           {!isEdit && <TextField label="Password" type="password" value={formData.password} onChange={(e)=>setFormData({...formData, password:e.target.value})} />}
           <Box display="flex" gap={1}>

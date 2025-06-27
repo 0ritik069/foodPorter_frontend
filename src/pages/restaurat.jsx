@@ -1,159 +1,95 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Swal from 'sweetalert2';
-
+import React, { useState } from "react";
 import {
-  Avatar,
   Box,
-  Button,
+  Card,
+  CardContent,
   Chip,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Modal,
-  Paper,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
-  Tooltip,
-  Typography
-} from '@mui/material';
-import VisibilityIcon  from '@mui/icons-material/Visibility';
-import EditIcon  from '@mui/icons-material/Edit';
-import  Delete  from '@mui/icons-material/Delete';
+  Typography,
+} from "@mui/material";
+import {DataGrid} from "@mui/x-data-grid"
+import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs"
+import {DatePicker} from "@mui/x-date-pickers/DatePicker"
+import dayjs from "dayjs";
 
-const API = axios.create({ baseURL: `htt:/192.168.1.80:5000/api`});
-API.interceptors.request.use((config)=>{
-  const token = localStorage.getItem('token');
-  if(token) config.headers.Authorization=
-});
+const initialPayments = [
+  {
+    id: 1,
+    orderId: "ORD001",
+    restaurant: "Spice Villa",
+    customer: "Ravi Sharma",
+    date: "2025-05-18",
+    amount: 1200,
+    commission: 120,
+    status: "Paid",
+  },
+  {
+    id: 2,
+    orderId: "ORD002",
+    restaurant: "Pizza Corner",
+    customer: "Neha Patel",
+    date: "2025-05-18",
+    amount: 750,
+    commission: 75,
+    status: "Unpaid",
+  },
+  {
+    id: 3,
+    orderId: "ORD003",
+    restaurant: "Grill House",
+    customer: "Amit Singh",
+    date: "2025-05-17",
+    amount: 980,
+    commission: 98,
+    status: "Paid",
+  },
+];
 
-const PER_PAGE=8;
-const emptyForm={
-  name:"",
-  category:"",
-  price:"",
-  availabilty:true,
-};
+const Restaurants =() =>{
+  const[payments]=useState(initialPayments);
+  const[searchOrderId,setSearchOrderId] = useState("");
+  const [restaurant,setRestaurant] =useState("All");
+  const [startDate,setStartDate]=useState(null);
+  const [endDate,setEndDate]=useState(null);
 
-export default function RestaurantMenu((restaurantId)){
+  const filteredPayments = useMemo(() => {
+    return payments.filter((p) => {
+      if (restaurant !== "All" && p.restaurant !== restaurant) return false;
 
+      if (
+        searchOrderId.trim() !== "" &&
+        !p.orderId.toLowerCase().includes(searchOrderId.toLowerCase())
+      )
+        return false;
 
-    const[loading,setLoading]= useState(false);
-    const[page,setPage]=useState(0);
-    const[openView,setOpenView]=useState(false);
-    const[details,setDetails] = useState(null);
-    const[openDlg,setOpenDlg]=useState(false);
-
-    const [dishes,setDishes] = useState([]);
-    const [search,setSearch] = useState('');
-    const [formData,setFormData]= useState(emptyForm);
-
-    const [currentId,setCurrentId] = useState(null);
-    const[isEdit,setIsEdit] = useState(false);
-
-    const showToast = (title,icon= 'success')=>{
-      Swal.fire({ title,toast:true,timer:2000,position:'top',icon});
-
-      const fetchMenu = async (signal)=>{
-        setLoading(false);
-        try{
-          const url= restaurantId
-          ? `/dishes/restaurant/${restaurantId}`
-          :'/dishes';
-          const {data} = await API.get(url, { signal });
-          console.log(data.data);
-          setDishes(data.data || data);
-
+      if (startDate && endDate) {
+        const paymentDate = dayjs(p.date);
+        if (
+          paymentDate.isBefore(dayjs(startDate), "day") ||
+          paymentDate.isAfter(dayjs(endDate), "day")
+        ) {
+          return false;
         }
-        catch(err){
-          if(!axios.isCancel(err))
-            showToast('Failed to load dishes','error');
-        }finally{
-          setLoading(false);
-        }
-      };
-
-      useEffect(()=>{
-        const c= new AbortController();
-        fetchMenu(c.signal);
-        return () =>c.abort();
-      },[restaurantId]);
-
-      const handleView = async (id) =>{
-        try{
-          const { data } = await API.get(`/dishes/${id}`);
-          const dish = data.data || data;
-          setDetails({
-            name:dish.name,
-            category:dish.category_name || dish.category,
-            price:dish.price,
-            availability:dish.is_available ===1
-          });
-          setOpenView(true);
-        }
-        catch{
-          showToast('Unable to fetch item','error');
-        }
-      };
-
-      const openAddDialog = () =>{
-        setIsEdit(false);
-        setCurrentId(null);
-        setFormData(emptyForm);
-        setOpenDlg(true);
-      };
-
-      const openEditDialog = (dish) =>{
-        setIsEdit(true);
-        setCurrentId(dish.id);
-        setFormData({ ...emptyForm, ...dish, image: null});
       }
 
-      const handleDelete = async (id) =>{
-        const c = await Swal.fire({
-          title:'Delete dish?',
-          text:'This action is irreversible!',
-          icon: 'warning',
-          showCancelButton:true,
-          confirmButtonColor: '#d33'
-        });
-        if(!c.isConfirmed) return;
-        try{
-          await API.delete(`/dishes/${id}`);
-          showToast('Deleted');
-          fetchMenu();
-        }
-        catch{
-          showToast('Deleted Failed','error');
-        }
-      };
+      return true;
+    });
+  }, [payments, restaurant, searchOrderId, startDate, endDate]);
 
-      const handleSave = async()=>{
-        const {name ,category,price}=formData;
-        if(!name || !category || !price)
-          return showToast("All fields required", "warning");
+  const totalEarnings = filteredPayments.reduce((acc,p) => acc+p.amount,0);
+  const totalCommission = filteredPayments.reduce((acc,p)=> acc+ p.commission,0);
 
-        const fd = new FormData();
-        Object.entries(formData).forEach(([k,v])=>{
-          if(k=== 'image' && !v) return;
-          fd.append(k, v);
-        });
-
-      }
+  const columns=[
+    {fields:"orderId", headerName:"Order ID",flex: 1},
+    {fields:"restaurants", headerName:"Restaurant", flex:1},
+    {fields:"customer",}
+    
+  ]
 
 
-
-
-    }
 
 }

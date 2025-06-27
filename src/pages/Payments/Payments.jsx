@@ -82,7 +82,10 @@ const Payments = () => {
   }, [payments, restaurant, searchOrderId, startDate, endDate]);
 
   const totalEarnings = filteredPayments.reduce((acc, p) => acc + p.amount, 0);
-  const totalCommission = filteredPayments.reduce((acc, p) => acc + p.commission, 0);
+  const totalCommission = filteredPayments.reduce(
+    (acc, p) => acc + p.commission,
+    0
+  );
 
   const columns = [
     { field: "orderId", headerName: "Order ID", flex: 1 },
@@ -119,62 +122,65 @@ const Payments = () => {
 
   return (
     <Box sx={{ p: 3 }}>
+      
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          mb: 3,
           flexWrap: "wrap",
-          gap: 2,
           alignItems: "center",
+          gap: 2,
+          mb: 3,
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: 600 }} component="h2">
-          Payments & <span>Earnings</span>
+        <Typography variant="h5" fontWeight={600}>
+          Payments & Earnings
         </Typography>
-
         <TextField
-          label="Search by Order ID"
-          variant="outlined"
           size="small"
-          sx={{ width: { xs: "100%", sm: "30%" } }}
+          label="Search Order ID"
+          variant="outlined"
           value={searchOrderId}
           onChange={(e) => setSearchOrderId(e.target.value)}
+          sx={{ width: { xs: "100%", sm: "30%" } }}
         />
       </Box>
 
-      <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 3 }}>
+ 
+      <Box
+        sx={{
+          display: "flex",
+          gap: 2,
+          flexWrap: "wrap",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
             label="Start Date"
             value={startDate}
             onChange={(newValue) => setStartDate(newValue)}
-            renderInput={(params) => (
-              <TextField {...params} size="small" sx={{ width: 150 }} />
-            )}
+            slotProps={{ textField: { size: "small", sx: { width: 150 } } }}
           />
-          <Box sx={{ alignSelf: "center", mx: 1 }}>to</Box>
           <DatePicker
             label="End Date"
             value={endDate}
             onChange={(newValue) => setEndDate(newValue)}
-            renderInput={(params) => (
-              <TextField {...params} size="small" sx={{ width: 150 }} />
-            )}
+            slotProps={{ textField: { size: "small", sx: { width: 150 } } }}
           />
         </LocalizationProvider>
 
         <Box sx={{ minWidth: 200 }}>
           <InputLabel id="restaurant-select-label">Restaurant</InputLabel>
           <Select
-            labelId="restaurant-select-label"
-            id="restaurant-select"
-            value={restaurant}
             size="small"
-            onChange={(e) => setRestaurant(e.target.value)}
             fullWidth
+            labelId="restaurant-select-label"
+            value={restaurant}
+            onChange={(e) => setRestaurant(e.target.value)}
           >
-            <MenuItem value="All">All Restaurants</MenuItem>
+            <MenuItem value="All">Select Restaurant</MenuItem>
             <MenuItem value="Spice Villa">Spice Villa</MenuItem>
             <MenuItem value="Pizza Corner">Pizza Corner</MenuItem>
             <MenuItem value="Grill House">Grill House</MenuItem>
@@ -182,22 +188,22 @@ const Payments = () => {
         </Box>
       </Box>
 
+      
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card variant="outlined">
             <CardContent>
-              <Typography variant="subtitle1" gutterBottom>
+              <Typography variant="subtitle2" gutterBottom>
                 Total Earnings
               </Typography>
               <Typography variant="h6">₹{totalEarnings}</Typography>
             </CardContent>
           </Card>
         </Grid>
-
         <Grid item xs={12} sm={6} md={3}>
           <Card variant="outlined">
             <CardContent>
-              <Typography variant="subtitle1" gutterBottom>
+              <Typography variant="subtitle2" gutterBottom>
                 Total Commission
               </Typography>
               <Typography variant="h6">₹{totalCommission}</Typography>
@@ -206,16 +212,17 @@ const Payments = () => {
         </Grid>
       </Grid>
 
-      <div style={{ width: "100%" }}>
+      {/* Table */}
+      <Box sx={{ width: "100%" }}>
         <DataGrid
           rows={filteredPayments}
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
-          disableSelectionOnClick
+          disableRowSelectionOnClick
           autoHeight
         />
-      </div>
+      </Box>
     </Box>
   );
 };

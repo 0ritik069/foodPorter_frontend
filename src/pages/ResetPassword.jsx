@@ -72,14 +72,14 @@ function ResetPassword() {
 
         <form onSubmit={resetData}>
           <div className="mb-4">
-            <TextField
+            {/* <TextField
               fullWidth
               label="Email"
               name="email"
               type="email"
               onChange={handleChange}
               value={state.email}
-            />
+            /> */}
           </div>
 
           <div className="mb-4">

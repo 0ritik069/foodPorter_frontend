@@ -48,7 +48,6 @@ const emptyForm = {
 export default function ManageRestaurants() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [openView, setOpenView] = useState(false);
@@ -67,9 +66,8 @@ export default function ManageRestaurants() {
       const { data } = await API.post("/restaurants/list", { signal });
       const list = (data.data || data).map(normalize);
       setRestaurants(list);
-      setError("");
-    } catch (err) {
-      if (!axios.isCancel(err)) setError("Failed to fetch restaurants");
+    } catch {
+      showToast("Failed to fetch restaurants", "error");
     } finally {
       setLoading(false);
     }
@@ -91,8 +89,6 @@ export default function ManageRestaurants() {
     }
   };
 
-  
-
   const openEditModal = async (id) => {
     try {
       const { data } = await API.get(`/restaurants/${id}`);
@@ -105,14 +101,14 @@ export default function ManageRestaurants() {
   };
 
   const handleDelete = async (id) => {
-    const c = await Swal.fire({
+    const confirm = await Swal.fire({
       title: "Delete?",
-      text: "Permanent!",
+      text: "Restaurant will be removed permanently!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
     });
-    if (!c.isConfirmed) return;
+    if (!confirm.isConfirmed) return;
     try {
       await API.delete(`/restaurants/${id}`);
       fetchRestaurants();
@@ -184,32 +180,14 @@ export default function ManageRestaurants() {
 
   return (
     <Box p={3}>
-      <Box
-        mb={3}
-        display="flex"
-        gap={2}
-        alignItems="center"
-        flexWrap="wrap"
-        justifyContent="space-between"
-      >
-        <Typography variant="h5" fontWeight={600}>
-          Manage Restaurants
-        </Typography>
-
-        <Box display="flex" gap={2}>
-          <TextField
-            size="small"
-            placeholder="Search by name…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      {/* Header */}
+      <Box mb={3} display="flex" justifyContent="space-between" flexWrap="wrap" gap={2}>
+        <Typography variant="h5" fontWeight={600}>Manage Restaurants</Typography>
+        <Box display="flex" gap={2} flexWrap="wrap">
+          <TextField size="small" label="Search name" value={search} onChange={(e) => setSearch(e.target.value)} />
           <Button
-            sx={{
-              backgroundColor: "#facc15",
-              color: "#000",
-              textTransform: "none",
-              "&:hover": { backgroundColor: "#eab308" },
-            }}
+            variant="contained"
+            sx={{ backgroundColor: "#facc15", color: "#000", textTransform: "none", "&:hover": { backgroundColor: "#eab308" } }}
             onClick={() => setOpenAdd(true)}
           >
             + Add Restaurant
@@ -217,38 +195,28 @@ export default function ManageRestaurants() {
         </Box>
       </Box>
 
-      {loading && (
-        <Box textAlign="center">
-          <CircularProgress />
-        </Box>
-      )}
-      {error && <Typography color="error">{error}</Typography>}
-
-      {!loading && !error && (
-        <Paper sx={{ maxHeight: "calc(100vh - 300px)", overflow: "auto" }}>
-          <TableContainer>
+      {/* Table */}
+      {loading ? (
+        <Box display="flex" height={300} alignItems="center" justifyContent="center"><CircularProgress /></Box>
+      ) : (
+        <Paper elevation={3}>
+          <TableContainer sx={{ maxHeight: 740 }}>
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
                   {["Img", "Name", "Owner", "Phone", "City", "Status", "Actions"].map((h) => (
-                    <TableCell key={h}>
-                      <b>{h}</b>
-                    </TableCell>
+                    <TableCell key={h}><b>{h}</b></TableCell>
                   ))}
                 </TableRow>
               </TableHead>
               <TableBody>
                 {slice.map((r) => (
                   <TableRow key={r.id} hover>
-                    <TableCell>
-                      <Avatar src={getImageUrl(r.image)} alt={r.name} />
-                    </TableCell>
+                    <TableCell><Avatar src={getImageUrl(r.image)} alt={r.name} /></TableCell>
                     <TableCell>{r.name}</TableCell>
                     <TableCell>{r.ownerName}</TableCell>
                     <TableCell>{r.phone}</TableCell>
-                    <TableCell sx={{ maxWidth: 160 }}>
-                      {r.city || "—"}
-                    </TableCell>
+                    <TableCell>{r.city || "—"}</TableCell>
                     <TableCell>
                       <Chip
                         label={r.status}
@@ -263,38 +231,32 @@ export default function ManageRestaurants() {
                       />
                     </TableCell>
                     <TableCell>
-                      <IconButton size="small" onClick={() => handleView(r.id)}>
-                        <VisibilityIcon fontSize="inherit" />
-                      </IconButton>
-                      <IconButton size="small" onClick={() => openEditModal(r.id)}>
-                        <EditIcon fontSize="inherit" sx={{ color: "#f59e0b" }} />
-                      </IconButton>
-                      <IconButton size="small" onClick={() => handleDelete(r.id)}>
-                        <DeleteIcon fontSize="inherit" sx={{ color: "red" }} />
-                      </IconButton>
+                      <Box display="flex" gap={1}>
+                        <IconButton size="small" onClick={() => handleView(r.id)}><VisibilityIcon fontSize="small" /></IconButton>
+                        <IconButton size="small" onClick={() => openEditModal(r.id)} sx={{ color: "#f59e0b" }}><EditIcon fontSize="small" /></IconButton>
+                        <IconButton size="small" onClick={() => handleDelete(r.id)} sx={{ color: "red" }}><DeleteIcon fontSize="small" /></IconButton>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
-
           <TablePagination
-            rowsPerPageOptions={[]}
             component="div"
             count={filtered.length}
             page={page}
-            rowsPerPage={PER_PAGE}
             onPageChange={(_, p) => setPage(p)}
+            rowsPerPage={PER_PAGE}
+            rowsPerPageOptions={[]}
           />
         </Paper>
       )}
 
+      {/* View Modal */}
       <Modal open={openView} onClose={() => setOpenView(false)}>
         <Box sx={modalStyle}>
-          <Typography variant="h6" mb={2} fontWeight={600}>
-            Restaurant Details
-          </Typography>
+          <Typography variant="h6" mb={2} fontWeight={600}>Restaurant Details</Typography>
           {restaurantDetails ? (
             <Table size="small">
               <TableBody>
@@ -310,79 +272,76 @@ export default function ManageRestaurants() {
                     <TableCell sx={{ fontWeight: 600 }}>{k}</TableCell>
                     <TableCell>
                       {k === "Status" ? (
-                        <Chip
-                          label={v}
-                          size="small"
-                          color={v === "open" ? "success" : "error"}
-                        />
-                      ) : (
-                        v
-                      )}
+                        <Chip label={v} size="small" color={v === "open" ? "success" : "error"} />
+                      ) : v}
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          ) : (
-            <CircularProgress />
-          )}
+          ) : <CircularProgress />}
           <Box textAlign="right" mt={2}>
-            <Button variant="contained" onClick={() => setOpenView(false)}>
-              Close
-            </Button>
+            <Button variant="contained" onClick={() => setOpenView(false)}>Close</Button>
           </Box>
         </Box>
       </Modal>
 
+      {/* Edit Modal */}
       <Modal open={openEdit} onClose={() => setOpenEdit(false)}>
         <Box sx={modalStyle}>
-          <Typography variant="h6" mb={2}>
-            Edit Restaurant
-          </Typography>
-
+          <Typography variant="h6" mb={2} fontWeight={600}>Edit Restaurant</Typography>
           <Avatar
             sx={{ width: 56, height: 56, mb: 1 }}
-            src={
-              formData.image
-                ? URL.createObjectURL(formData.image)
-                : getImageUrl(formData.preview)
-            }
-            alt="preview"
+            src={formData.image ? URL.createObjectURL(formData.image) : getImageUrl(formData.preview)}
           />
-
           {["name", "ownerName", "email", "phone", "address"].map((f) => (
             <TextField
               key={f}
+              label={f.charAt(0).toUpperCase() + f.slice(1)}
               fullWidth
               size="small"
-              sx={{ mb: 1 }}
-              label={f.charAt(0).toUpperCase() + f.slice(1)}
-              value={formData[f] || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, [f]: e.target.value })
-              }
+              sx={{ mb: 2 }}
+              value={formData[f]}
+              onChange={(e) => setFormData({ ...formData, [f]: e.target.value })}
             />
           ))}
-
           <Button component="label" sx={{ mb: 2 }}>
             Upload Image
-            <input
-              hidden
-              accept="image/*"
-              type="file"
-              onChange={(e) =>
-                setFormData({ ...formData, image: e.target.files?.[0] })
-              }
-            />
+            <input hidden type="file" accept="image/*" onChange={(e) => setFormData({ ...formData, image: e.target.files?.[0] })} />
           </Button>
-
           <Box textAlign="right">
-            <Button sx={{ mr: 1 }} onClick={() => setOpenEdit(false)}>
-              Cancel
-            </Button>
-            <Button variant="contained" onClick={handleSave}>
-              Save
-            </Button>
+            <Button onClick={() => setOpenEdit(false)} sx={{ mr: 1 }}>Cancel</Button>
+            <Button variant="contained" onClick={handleSave}>Save</Button>
+          </Box>
+        </Box>
+      </Modal>
+
+      {/* Add Modal */}
+      <Modal open={openAdd} onClose={() => setOpenAdd(false)}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6" mb={2} fontWeight={600}>Add Restaurant</Typography>
+          <Avatar
+            sx={{ width: 56, height: 56, mb: 1 }}
+            src={addData.image ? URL.createObjectURL(addData.image) : ""}
+          />
+          {["name", "ownerName", "email", "phone", "password", "address"].map((field) => (
+            <TextField
+              key={field}
+              label={field.charAt(0).toUpperCase() + field.slice(1)}
+              fullWidth
+              size="small"
+              sx={{ mb: 2 }}
+              value={addData[field]}
+              onChange={(e) => setAddData({ ...addData, [field]: e.target.value })}
+            />
+          ))}
+          <Button component="label" sx={{ mb: 2 }}>
+            Upload Image
+            <input hidden type="file" accept="image/*" onChange={(e) => setAddData({ ...addData, image: e.target.files?.[0] })} />
+          </Button>
+          <Box textAlign="right">
+            <Button onClick={() => setOpenAdd(false)} sx={{ mr: 1 }}>Cancel</Button>
+            <Button variant="contained" onClick={handleAdd}>Add</Button>
           </Box>
         </Box>
       </Modal>

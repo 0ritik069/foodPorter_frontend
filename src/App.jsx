@@ -36,6 +36,7 @@ import Policies from "./pages/Policie/Policies";
 import RestaurantSupport from "./pages/RestaurantSupport/RestaurantSupport";
 import RestaurantAbout from "./pages/RestaurantAbout/RestaurantAbout";
 import RestaurantContact from "./pages/RestaurantContact/RestaurantContact";
+import AdminProfile from "./pages/Admin Profile/AdminProfile"
 function App() {
   return (
     <BrowserRouter>
@@ -66,6 +67,7 @@ function App() {
           <Route path="settings" element={<Settings />} />
           <Route path="privacy" element={<PrivacyPolicy />} />
           <Route path="policies" element={<Policies />} />
+            <Route path="my-profile" element={<AdminProfile />} />
           {/* <Route path="my-profile" element={<MyProfile />} /> */}
           {/* <Route path="change-password" element={<ChangePassword />} /> */}
           {/* <Route path="*" element={<PageNotFound />} /> */}

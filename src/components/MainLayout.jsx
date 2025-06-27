@@ -84,7 +84,7 @@ const MainLayout = () => {
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
-    
+
       <div
         className={`
           bg-white transition-width duration-300 ease-in-out
@@ -121,10 +121,9 @@ const MainLayout = () => {
                 }
               }}
               className={`flex items-center gap-3 px-4 py-2 m-1 cursor-pointer transition-colors
-                ${
-                  getActiveKey() === item.key
-                    ? "bg-red-500 text-white"
-                    : "hover:bg-red-500 hover:text-white text-gray-700"
+                ${getActiveKey() === item.key
+                  ? "bg-red-500 text-white"
+                  : "hover:bg-red-500 hover:text-white text-gray-700"
                 }
               `}
             >
@@ -135,7 +134,7 @@ const MainLayout = () => {
         </nav>
       </div>
 
-      
+
       {mobileMenuOpen && (
         <div
           onClick={() => setMobileMenuOpen(false)}
@@ -143,12 +142,12 @@ const MainLayout = () => {
         />
       )}
 
-     
+
       <div className="flex-1 flex flex-col overflow-hidden">
-       
+
         <div className="flex justify-between items-center px-5 py-2 bg-white border-b border-gray-200">
           <div className="flex items-center gap-3">
-          
+
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden text-red-500 focus:outline-none"
@@ -157,7 +156,7 @@ const MainLayout = () => {
               <MenuIcon />
             </button>
 
-           
+
             <button
               onClick={() => setCollapsed(!collapsed)}
               className="hidden md:block text-red-500 focus:outline-none"
@@ -171,15 +170,31 @@ const MainLayout = () => {
             <IconButton onClick={handleClick}>
               <Avatar
                 src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                sx={{ width: 30, height: 30 }}
+                sx={{ width: 35, height: 40 }}
               />
             </IconButton>
             <span className="hidden sm:inline">{adminName}</span>
 
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-              <MenuItem onClick={handleClose}>My Profile</MenuItem>
-              <MenuItem onClick={handleClose}>Change Password</MenuItem>
-              <MenuItem onClick={handleClose}></MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  navigate("/admin/my-profile");
+                }}
+              >
+                My Profile
+              </MenuItem>
+
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  navigate("/admin/change-password");
+                }}
+              >
+                Change Password
+              </MenuItem>
+
+              {/* <MenuItem onClick={handleClose}></MenuItem> */}
               <MenuItem
                 onClick={() => {
                   handleClose();
@@ -192,7 +207,7 @@ const MainLayout = () => {
           </div>
         </div>
 
-        
+
         <div className="p-4 flex-1 overflow-y-auto page_layout">
           <Outlet />
         </div>
