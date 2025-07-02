@@ -62,7 +62,7 @@ const RestaurantLayout = () => {
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
-      {/* Sidebar */}
+      
       <div
         className={`
           bg-white transition-width duration-300 ease-in-out

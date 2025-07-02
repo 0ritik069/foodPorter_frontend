@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Box,
   Typography,
@@ -13,7 +14,6 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  Chip,
   IconButton,
   Tooltip,
   Dialog,
@@ -24,85 +24,79 @@ import {
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { baseUrl } from "../../features/Api/BaseUrl";
 
-const initialOrders = [
-  {
-    key: "1",
-    orderId: "#FD1023",
-    customer: "Amit Sharma",
-    items: "Pizza, Coke",
-    total: "₹450",
-    status: "Delivered",
-    time: "12:30 PM",
-  },
-  {
-    key: "2",
-    orderId: "#FD1045",
-    customer: "Pooja Reddy",
-    items: "Burger, Fries",
-    total: "₹320",
-    status: "Pending",
-    time: "1:10 PM",
-  },
-  {
-    key: "3",
-    orderId: "#FD1059",
-    customer: "Rohit Verma",
-    items: "Thali, Lassi",
-    total: "₹550",
-    status: "Cancelled",
-    time: "11:45 AM",
-  },
-];
-
-const statusOptions = ["All", "Delivered", "Pending", "Cancelled"];
+const statusOptions = ["All", "Pending", "Preparing", "Delivered", "Cancelled"];
 
 const getStatusColor = (status) => {
   switch (status) {
     case "Delivered":
       return "success";
-    case "Pending":
-      return "warning";
+    case "Preparing":
+      return "info";
     case "Cancelled":
       return "error";
+    case "Pending":
     default:
-      return "default";
+      return "warning";
   }
 };
 
+const getToken = () => localStorage.getItem("token");
+
 const RestaurantOrders = () => {
-  const [orders, setOrders] = useState(initialOrders);
+  const [orders, setOrders] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [currentEditOrder, setCurrentEditOrder] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const [newOrder, setNewOrder] = useState({
-    orderId: "",
     customer: "",
     items: "",
-    total: "",
-    time: "",
+    amount: "",
     status: "Pending",
   });
 
-  const filteredOrders = orders.filter((order) => {
-    const matchesSearch =
-      order.customer.toLowerCase().includes(searchText.toLowerCase()) ||
-      order.orderId.toLowerCase().includes(searchText.toLowerCase()) ||
-      order.items.toLowerCase().includes(searchText.toLowerCase());
-
-    const matchesStatus =
-      statusFilter === "All" ? true : order.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
-  });
-
-  const handleDelete = (key) => {
-    if (window.confirm("Are you sure you want to delete this order?")) {
-      setOrders((prev) => prev.filter((order) => order.key !== key));
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `${baseUrl}orders/order-list`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+      if (response.data && Array.isArray(response.data.Orders)) {
+        setOrders(response.data.Orders);
+      } else {
+        console.error("Unexpected response format", response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const filteredOrders = orders.filter((order) => {
+    const text = searchText.toLowerCase();
+    const matchesSearch =
+      order.customer?.toLowerCase().includes(text) ||
+      order.id?.toLowerCase().includes(text) ||
+      order.items?.toLowerCase().includes(text);
+    const matchesStatus = statusFilter === "All" || order.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   const handleEditOpen = (order) => {
     setCurrentEditOrder(order);
@@ -116,9 +110,7 @@ const RestaurantOrders = () => {
 
   const handleEditSave = () => {
     setOrders((prev) =>
-      prev.map((order) =>
-        order.key === currentEditOrder.key ? currentEditOrder : order
-      )
+      prev.map((o) => (o.id === currentEditOrder.id ? currentEditOrder : o))
     );
     handleEditClose();
   };
@@ -128,25 +120,21 @@ const RestaurantOrders = () => {
     setCurrentEditOrder((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddOrderOpen = () => {
-    setAddDialogOpen(true);
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this order?")) {
+      setOrders((prev) => prev.filter((order) => order.id !== id));
+    }
   };
 
+  const handleAddOrderOpen = () => setAddDialogOpen(true);
   const handleAddOrderClose = () => {
     setAddDialogOpen(false);
-    setNewOrder({
-      orderId: "",
-      customer: "",
-      items: "",
-      total: "",
-      time: "",
-      status: "Pending",
-    });
+    setNewOrder({ customer: "", items: "", amount: "", status: "Pending" });
   };
 
   const handleAddOrderSave = () => {
-    const newKey = Date.now().toString();
-    setOrders((prev) => [...prev, { key: newKey, ...newOrder }]);
+    const newId = `ORD${Date.now().toString().slice(-4)}`;
+    setOrders([...orders, { id: newId, ...newOrder }]);
     handleAddOrderClose();
   };
 
@@ -155,18 +143,18 @@ const RestaurantOrders = () => {
     setNewOrder((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleStatusChangeInline = (key, newStatus) => {
+  const handleStatusChangeInline = (id, newStatus) => {
     setOrders((prev) =>
       prev.map((order) =>
-        order.key === key ? { ...order, status: newStatus } : order
+        order.id === id ? { ...order, status: newStatus } : order
       )
     );
   };
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <Box p={2}>
       <Typography variant="h5" fontWeight={600} gutterBottom>
-         <span >Manage Orders</span>
+        Manage Orders
       </Typography>
 
       <Stack
@@ -183,7 +171,6 @@ const RestaurantOrders = () => {
           onChange={(e) => setSearchText(e.target.value)}
           sx={{ minWidth: 250 }}
         />
-
         <TextField
           select
           label="Filter by Status"
@@ -198,25 +185,28 @@ const RestaurantOrders = () => {
             </MenuItem>
           ))}
         </TextField>
-
         <Button
           variant="contained"
-          sx={{ ml: "auto", backgroundColor: "#facc15", color: "#000", fontWeight: 600, textTransform: "none" }}
           onClick={handleAddOrderOpen}
+          sx={{
+            backgroundColor: "#facc15",
+            color: "#000",
+            textTransform: "none",
+            "&:hover": { backgroundColor: "#eab308" },
+          }}
         >
-          Add New Order
+          + Add Order
         </Button>
       </Stack>
 
-      <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2 }}>
+      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
         <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+          <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
+            <TableRow>
               <TableCell><strong>Order ID</strong></TableCell>
               <TableCell><strong>Customer</strong></TableCell>
               <TableCell><strong>Items</strong></TableCell>
-              <TableCell><strong>Total</strong></TableCell>
-              <TableCell><strong>Time</strong></TableCell>
+              <TableCell><strong>Amount</strong></TableCell>
               <TableCell><strong>Status</strong></TableCell>
               <TableCell align="center"><strong>Actions</strong></TableCell>
             </TableRow>
@@ -224,19 +214,18 @@ const RestaurantOrders = () => {
           <TableBody>
             {filteredOrders.length > 0 ? (
               filteredOrders.map((order) => (
-                <TableRow key={order.key} hover>
-                  <TableCell><strong>{order.orderId}</strong></TableCell>
+                <TableRow key={order.id} hover>
+                  <TableCell>{order.id}</TableCell>
                   <TableCell>{order.customer}</TableCell>
                   <TableCell>{order.items}</TableCell>
-                  <TableCell>{order.total}</TableCell>
-                  <TableCell>{order.time}</TableCell>
+                  <TableCell>₹{order.amount}</TableCell>
                   <TableCell>
                     <TextField
                       select
                       size="small"
                       value={order.status}
                       onChange={(e) =>
-                        handleStatusChangeInline(order.key, e.target.value)
+                        handleStatusChangeInline(order.id, e.target.value)
                       }
                     >
                       {statusOptions
@@ -267,7 +256,7 @@ const RestaurantOrders = () => {
                       <IconButton
                         color="error"
                         size="small"
-                        onClick={() => handleDelete(order.key)}
+                        onClick={() => handleDelete(order.id)}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -277,8 +266,8 @@ const RestaurantOrders = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} align="center">
-                  No orders found.
+                <TableCell colSpan={6} align="center">
+                  {loading ? "Loading..." : "No matching orders found."}
                 </TableCell>
               </TableRow>
             )}
@@ -292,22 +281,48 @@ const RestaurantOrders = () => {
         <DialogContent dividers>
           {currentEditOrder && (
             <Stack spacing={2} mt={1}>
-              <TextField label="Order ID" value={currentEditOrder.orderId} disabled />
-              <TextField name="customer" label="Customer" value={currentEditOrder.customer} onChange={handleEditChange} />
-              <TextField name="items" label="Items" value={currentEditOrder.items} onChange={handleEditChange} />
-              <TextField name="total" label="Total" value={currentEditOrder.total} onChange={handleEditChange} />
-              <TextField name="time" label="Time" value={currentEditOrder.time} onChange={handleEditChange} />
-              <TextField select name="status" label="Status" value={currentEditOrder.status} onChange={handleEditChange}>
-                {statusOptions.filter(s => s !== "All").map(status => (
-                  <MenuItem key={status} value={status}>{status}</MenuItem>
-                ))}
+              <TextField label="Order ID" value={currentEditOrder.id} disabled />
+              <TextField
+                name="customer"
+                label="Customer"
+                value={currentEditOrder.customer}
+                onChange={handleEditChange}
+              />
+              <TextField
+                name="items"
+                label="Items"
+                value={currentEditOrder.items}
+                onChange={handleEditChange}
+              />
+              <TextField
+                name="amount"
+                label="Amount"
+                value={currentEditOrder.amount}
+                onChange={handleEditChange}
+              />
+              <TextField
+                select
+                name="status"
+                label="Status"
+                value={currentEditOrder.status}
+                onChange={handleEditChange}
+              >
+                {statusOptions
+                  .filter((s) => s !== "All")
+                  .map((status) => (
+                    <MenuItem key={status} value={status}>
+                      {status}
+                    </MenuItem>
+                  ))}
               </TextField>
             </Stack>
           )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleEditClose}>Cancel</Button>
-          <Button onClick={handleEditSave} variant="contained">Save</Button>
+          <Button onClick={handleEditSave} variant="contained">
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -316,21 +331,46 @@ const RestaurantOrders = () => {
         <DialogTitle>Add New Order</DialogTitle>
         <DialogContent dividers>
           <Stack spacing={2} mt={1}>
-            <TextField name="orderId" label="Order ID" value={newOrder.orderId} onChange={handleNewOrderChange} />
-            <TextField name="customer" label="Customer" value={newOrder.customer} onChange={handleNewOrderChange} />
-            <TextField name="items" label="Items" value={newOrder.items} onChange={handleNewOrderChange} />
-            <TextField name="total" label="Total" value={newOrder.total} onChange={handleNewOrderChange} />
-            <TextField name="time" label="Time" value={newOrder.time} onChange={handleNewOrderChange} />
-            <TextField select name="status" label="Status" value={newOrder.status} onChange={handleNewOrderChange}>
-              {statusOptions.filter(s => s !== "All").map(status => (
-                <MenuItem key={status} value={status}>{status}</MenuItem>
-              ))}
+            <TextField
+              name="customer"
+              label="Customer"
+              value={newOrder.customer}
+              onChange={handleNewOrderChange}
+            />
+            <TextField
+              name="items"
+              label="Items"
+              value={newOrder.items}
+              onChange={handleNewOrderChange}
+            />
+            <TextField
+              name="amount"
+              label="Amount"
+              value={newOrder.amount}
+              onChange={handleNewOrderChange}
+            />
+            <TextField
+              select
+              name="status"
+              label="Status"
+              value={newOrder.status}
+              onChange={handleNewOrderChange}
+            >
+              {statusOptions
+                .filter((s) => s !== "All")
+                .map((status) => (
+                  <MenuItem key={status} value={status}>
+                    {status}
+                  </MenuItem>
+                ))}
             </TextField>
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleAddOrderClose}>Cancel</Button>
-          <Button onClick={handleAddOrderSave} variant="contained">Add Order</Button>
+          <Button onClick={handleAddOrderSave} variant="contained">
+            Add Order
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

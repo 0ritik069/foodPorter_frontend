@@ -105,7 +105,7 @@ const MainLayout = () => {
           <img
             src={logo_png}
             alt="Logo"
-            style={{ width: collapsed ? 30 : 40 }}
+            style={{ width: collapsed ? 80 : 90 }}
             className="transition-all duration-300"
           />
         </div>
@@ -162,7 +162,7 @@ const MainLayout = () => {
               className="hidden md:block text-red-500 focus:outline-none"
               aria-label="Toggle collapse sidebar"
             >
-              {collapsed ? <MenuIcon /> : <CloseIcon />}
+              {collapsed ? <MenuIcon /> : <MenuIcon />}
             </button>
           </div>
 
@@ -193,6 +193,7 @@ const MainLayout = () => {
               >
                 Change Password
               </MenuItem>
+
 
               {/* <MenuItem onClick={handleClose}></MenuItem> */}
               <MenuItem

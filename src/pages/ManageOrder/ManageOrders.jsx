@@ -169,12 +169,12 @@ const filteredOrders = orders.filter(
         </Box>
       </Box>
 
-      {/* Table */}
+    
       <TableContainer component={Paper} sx={{ maxHeight: 540 }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              {["Order ID", "Customer", "Items", "Amount", "Status", "Action"].map((h) => (
+              {["Order ID", "Customer", "Amount", "Status", "Action"].map((h) => (
                 <TableCell key={h}>
                   <strong>{h}</strong>
                 </TableCell>
@@ -217,7 +217,7 @@ const filteredOrders = orders.filter(
         </Table>
       </TableContainer>
 
-      {/* View Modal */}
+     
       <Dialog open={openView} onClose={() => setOpenView(false)}>
         <DialogTitle>Order Details</DialogTitle>
         <DialogContent dividers>

@@ -36,12 +36,15 @@ import Policies from "./pages/Policie/Policies";
 import RestaurantSupport from "./pages/RestaurantSupport/RestaurantSupport";
 import RestaurantAbout from "./pages/RestaurantAbout/RestaurantAbout";
 import RestaurantContact from "./pages/RestaurantContact/RestaurantContact";
-import AdminProfile from "./pages/Admin Profile/AdminProfile"
+import AdminProfile from "./pages/Admin Profile/AdminProfile";
+import ChangePassword from "./pages/ChangePassword/ChangePassword";
+import Signup from "./pages/Signup";
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<Forgotpassword />} />
         <Route path="/otp-verify" element={<OtpVerification />} />
@@ -52,6 +55,7 @@ function App() {
           <Route path="manage-customers" element={<ManageCustomer />} />
           <Route path="manage-restaurants" element={<ManageRestaurants />} />
           <Route path="manage-orders" element={<ManageOrders />} />
+          <Route path="change-password" element={<ChangePassword />} />
           <Route
             path="manage-customer/customer-detail"
             element={<CustomerDetails />}

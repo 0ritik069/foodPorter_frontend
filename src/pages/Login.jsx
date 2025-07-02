@@ -19,14 +19,14 @@ const getDashboardPath = (role) =>
 function Login() {
   const navigate = useNavigate();
 
-  /* local state */
+ 
   const [role, setRole]       = useState("admin");   
   const [email, setEmail]     = useState("");
   const [password, setPassword] = useState("");
   const [error, setError]     = useState("");
   const [loading, setLoading] = useState(false);
 
-  /* submit */
+ 
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password)
@@ -35,8 +35,8 @@ function Login() {
     try {
       setLoading(true);
 
-      /* dynamic endpoint */
-      const url = `/api/auth/login/${role}`;
+     
+      const url = `http:192.168.1.82:5000/api/auth/login/${role}`;
       const { data } = await axios.post(
         url,
         { email, password },
@@ -46,7 +46,7 @@ function Login() {
       const { token, user } = data;
       const { id, name, email: uEmail, role: dbRole } = user;
 
-      /* localStorage */
+     
       localStorage.setItem("id", id);
       localStorage.setItem("token", token);
       localStorage.setItem("name", name);
@@ -77,7 +77,7 @@ function Login() {
         </div>
 
         <form onSubmit={handleLogin}>
-          {/* Role selector */}
+         
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel id="role-label">Role</InputLabel>
             <Select

@@ -1,95 +1,131 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Box,
-  Card,
-  CardContent,
-  Chip,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
   Typography,
+  TextField,
+  MenuItem,
+  Button,
+  TableContainer,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  IconButton,
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  
 } from "@mui/material";
-import {DataGrid} from "@mui/x-data-grid"
-import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs"
-import {DatePicker} from "@mui/x-date-pickers/DatePicker"
-import dayjs from "dayjs";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { baseUrl } from "../features/Api/BaseUrl";
 
-const initialPayments = [
-  {
-    id: 1,
-    orderId: "ORD001",
-    restaurant: "Spice Villa",
-    customer: "Ravi Sharma",
-    date: "2025-05-18",
-    amount: 1200,
-    commission: 120,
-    status: "Paid",
-  },
-  {
-    id: 2,
-    orderId: "ORD002",
-    restaurant: "Pizza Corner",
-    customer: "Neha Patel",
-    date: "2025-05-18",
-    amount: 750,
-    commission: 75,
-    status: "Unpaid",
-  },
-  {
-    id: 3,
-    orderId: "ORD003",
-    restaurant: "Grill House",
-    customer: "Amit Singh",
-    date: "2025-05-17",
-    amount: 980,
-    commission: 98,
-    status: "Paid",
-  },
-];
+const statusOptions = ["All", "Pending", "In Progress", "Delivered", "Cancelled"];
 
-const Restaurants =() =>{
-  const[payments]=useState(initialPayments);
-  const[searchOrderId,setSearchOrderId] = useState("");
-  const [restaurant,setRestaurant] =useState("All");
-  const [startDate,setStartDate]=useState(null);
-  const [endDate,setEndDate]=useState(null);
+const getStatusColor = (status) => {
+  switch (status) {
+    case "Delivered":
+      return "success";
+      case "In Progress":
+        return "info";
+        case "Cancelled":
+          return "error";
+          case "Pending":
+            return "Warning";
+}
+};
 
-  const filteredPayments = useMemo(() => {
-    return payments.filter((p) => {
-      if (restaurant !== "All" && p.restaurant !== restaurant) return false;
+const getToken = () => localStorage.getItem("token");
 
-      if (
-        searchOrderId.trim() !== "" &&
-        !p.orderId.toLowerCase().includes(searchOrderId.toLowerCase())
-      )
-        return false;
+const Restaurant = () =>{
+  const [orders, setOrders] = useState([]);
+  const [searchText,setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [openView, setOpenView] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const[currentEditOrder, setCurrentEditOrder] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-      if (startDate && endDate) {
-        const paymentDate = dayjs(p.date);
-        if (
-          paymentDate.isBefore(dayjs(startDate), "day") ||
-          paymentDate.isAfter(dayjs(endDate), "day")
-        ) {
-          return false;
+  const [newOrder, setNewOrder] = useState({
+    customer:"",
+    items: "",
+    amount: "",
+    status: "Pending",
+});
+
+const fetchOrders = async () => {
+  setLoading(true);
+  try{
+    const response = await axios.post(
+      `${baseUrl}orders/order-list`,
+      {},
+      {
+        headers:{
+          Authorization: `Bearer ${getToken()}`,
+        },
         }
+    );
+      if(response.data && Array.isArray(response.data.Orders)){
+        setOrders(response.data.Orders);
+      }else{
+        console.error("Unexpected response format", response.data);
       }
 
-      return true;
-    });
-  }, [payments, restaurant, searchOrderId, startDate, endDate]);
-
-  const totalEarnings = filteredPayments.reduce((acc,p) => acc+p.amount,0);
-  const totalCommission = filteredPayments.reduce((acc,p)=> acc+ p.commission,0);
-
-  const columns=[
-    {fields:"orderId", headerName:"Order ID",flex: 1},
-    {fields:"restaurants", headerName:"Restaurant", flex:1},
-    {fields:"customer",}
+      }
+      catch(error) {
+        console.log("Failed to fetch orders:", error);
+      }
+      finally {
+        setLoading(false);
+      }
+      
     
-  ]
+  };
+  
+  useEffect(() => {
+    fetchOrders();
 
+  }, []);
+
+
+  const filteredOrders = orders.filter((order)=>{
+    const text = searchText.toLowerCase();
+    const matchesSearch = order.customer?.toLowerCase().includes(text) ||
+    order.id?.toLowerCase().includes(text) ||
+    order.items?.toLowerCase().includes(text);
+
+    const matchesStatus= statusFilter === "All" || order.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  })
+
+  const handleEditopen = (order) => {
+    setCurrentEditOrder(order);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditClose = () =>{
+    setEditDialogOpen(false);
+    setCurrentEditOrder(null);
+  };
+
+  const handleEditopen = (order) => {
+    setCurrentEditOrder(order);
+    setEditDialogOpen(true);
+
+  };
+  const handleEditClose = () =>{
+    setEditDialogOpen(false);
+    setCurrentEditOrder(null);
+  };
+
+  const 
 
 
 }
