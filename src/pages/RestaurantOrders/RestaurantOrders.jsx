@@ -185,7 +185,7 @@ const RestaurantOrders = () => {
             </MenuItem>
           ))}
         </TextField>
-        <Button
+        {/* <Button
           variant="contained"
           onClick={handleAddOrderOpen}
           sx={{
@@ -196,7 +196,7 @@ const RestaurantOrders = () => {
           }}
         >
           + Add Order
-        </Button>
+        </Button> */}
       </Stack>
 
       <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>

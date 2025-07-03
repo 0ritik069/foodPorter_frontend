@@ -36,7 +36,8 @@ function Login() {
       setLoading(true);
 
      
-      const url = `http:192.168.1.82:5000/api/auth/login/${role}`;
+    const url = `http://192.168.1.82:5000/api/auth/login/${role}`;
+
       const { data } = await axios.post(
         url,
         { email, password },

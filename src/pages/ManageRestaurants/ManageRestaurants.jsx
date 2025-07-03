@@ -36,7 +36,6 @@ const normalize = (r) => ({ ...r, id: r.id || r._id });
 const emptyForm = {
   id: "",
   name: "",
-  ownerName: "",
   email: "",
   phone: "",
   address: "",
@@ -150,8 +149,8 @@ export default function ManageRestaurants() {
   };
 
   const handleAdd = async () => {
-    const { name, ownerName, email, phone, password, address } = addData;
-    if (!name || !ownerName || !email || !phone || !password || !address)
+    const { name, email, phone, password, address } = addData;
+    if (!name || !email || !phone || !password || !address)
       return showToast("All fields required", "warning");
 
     const fd = new FormData();
@@ -180,7 +179,6 @@ export default function ManageRestaurants() {
 
   return (
     <Box p={3}>
-      {/* Header */}
       <Box mb={3} display="flex" justifyContent="space-between" flexWrap="wrap" gap={2}>
         <Typography variant="h5" fontWeight={600}>Manage Restaurants</Typography>
         <Box display="flex" gap={2} flexWrap="wrap">
@@ -195,7 +193,6 @@ export default function ManageRestaurants() {
         </Box>
       </Box>
 
-      {/* Table */}
       {loading ? (
         <Box display="flex" height={300} alignItems="center" justifyContent="center"><CircularProgress /></Box>
       ) : (
@@ -204,7 +201,7 @@ export default function ManageRestaurants() {
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
-                  {["Img", "Name", "Owner", "Phone", "City", "Status", "Actions"].map((h) => (
+                  {["Img", "Name", "Phone", "City", "Status", "Actions"].map((h) => (
                     <TableCell key={h}><b>{h}</b></TableCell>
                   ))}
                 </TableRow>
@@ -214,7 +211,6 @@ export default function ManageRestaurants() {
                   <TableRow key={r.id} hover>
                     <TableCell><Avatar src={getImageUrl(r.image)} alt={r.name} /></TableCell>
                     <TableCell>{r.name}</TableCell>
-                    <TableCell>{r.ownerName}</TableCell>
                     <TableCell>{r.phone}</TableCell>
                     <TableCell>{r.city || "—"}</TableCell>
                     <TableCell>
@@ -262,7 +258,6 @@ export default function ManageRestaurants() {
               <TableBody>
                 {Object.entries({
                   Name: restaurantDetails.name,
-                  Owner: restaurantDetails.ownerName,
                   Email: restaurantDetails.email,
                   Phone: restaurantDetails.phone,
                   Address: restaurantDetails.address,
@@ -294,7 +289,7 @@ export default function ManageRestaurants() {
             sx={{ width: 56, height: 56, mb: 1 }}
             src={formData.image ? URL.createObjectURL(formData.image) : getImageUrl(formData.preview)}
           />
-          {["name", "ownerName", "email", "phone", "address"].map((f) => (
+          {["name", "email", "phone", "address"].map((f) => (
             <TextField
               key={f}
               label={f.charAt(0).toUpperCase() + f.slice(1)}
@@ -324,7 +319,7 @@ export default function ManageRestaurants() {
             sx={{ width: 56, height: 56, mb: 1 }}
             src={addData.image ? URL.createObjectURL(addData.image) : ""}
           />
-          {["name", "ownerName", "email", "phone", "password", "address"].map((field) => (
+          {["name", "email", "phone", "password", "address"].map((field) => (
             <TextField
               key={field}
               label={field.charAt(0).toUpperCase() + field.slice(1)}

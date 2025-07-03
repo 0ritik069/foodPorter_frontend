@@ -139,7 +139,7 @@ const RestaurantLayout = () => {
               className="hidden md:block text-red-500 focus:outline-none"
               aria-label="Toggle collapse sidebar"
             >
-              {collapsed ? <MenuIcon /> : <CloseIcon />}
+              {collapsed ? <MenuIcon /> : <MenuIcon />}
             </button>
           </div>
 

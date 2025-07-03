@@ -23,6 +23,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import { baseUrl } from "../../features/Api/BaseUrl";
 
+
 const ManageOrders = () => {
   const [openView, setOpenView] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
@@ -40,30 +41,27 @@ const ManageOrders = () => {
 
   const getToken = () => localStorage.getItem("token");
 
-const fetchOrders = async () => {
-  setLoading(true);
-  try {
-    const response = await axios.post(
-      `${baseUrl}orders/order-list`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `${baseUrl}orders/order-list`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+      if (response.data && Array.isArray(response.data.Orders)) {
+        setOrders(response.data.Orders);
       }
-    );
-    if (response.data && Array.isArray(response.data.Orders)) {
-      setOrders(response.data.Orders); 
-    } else {
-      console.error("Unexpected response format", response.data);
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Failed to fetch orders:", error);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -87,9 +85,9 @@ const fetchOrders = async () => {
       items: newOrder.items,
       amount: parseFloat(newOrder.amount),
       status: newOrder.status,
+      order_date_time: new Date().toISOString(),
     };
 
-    
     setOrders([...orders, orderToAdd]);
     handleAddCancel();
   };
@@ -105,42 +103,50 @@ const fetchOrders = async () => {
 
   const handleSearch = (e) => setSearchTerm(e.target.value.toLowerCase());
 
-const filteredOrders = orders.filter(
-  (o) =>
-    o.id?.toString().toLowerCase().includes(searchTerm) || 
-    o.customer?.toLowerCase().includes(searchTerm) ||
-    o.items?.toLowerCase().includes(searchTerm)
-);
-
+  const filteredOrders = orders.filter(
+    (o) =>
+      o.id?.toString().toLowerCase().includes(searchTerm) ||
+      o.customer?.toLowerCase().includes(searchTerm) ||
+      o.items?.toLowerCase().includes(searchTerm)
+  );
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case "Delivered":
+    switch (status?.toLowerCase()) {
+      case "delivered":
         return "success";
-      case "Preparing":
+      case "preparing":
         return "info";
-      case "Cancelled":
+      case "cancelled":
         return "error";
-      case "Pending":
+      case "confirmed":
+        return "success";
+      case "pending":
       default:
         return "warning";
     }
   };
 
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString("en-IN", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  };
+
+  
+  const handleStatusChange = (newStatus) => {
+    const updatedOrders = orders.map((o) =>
+      o.id === selectedOrder.id ? { ...o, status: newStatus } : o
+    );
+    setOrders(updatedOrders);
+    setSelectedOrder({ ...selectedOrder, status: newStatus });
+  };
+
   return (
     <Box p={3}>
-      
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={2}
-        flexWrap="wrap"
-        gap={2}
-      >
-        <Typography variant="h5" fontWeight={600}>
-          Manage Orders
-        </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} flexWrap="wrap" gap={2}>
+        <Typography variant="h5" fontWeight={600}>Manage Orders</Typography>
         <Box display="flex" gap={2} flexWrap="wrap">
           <TextField
             size="small"
@@ -154,30 +160,15 @@ const filteredOrders = orders.filter(
               ),
             }}
           />
-          <Button
-            variant="contained"
-            sx={{
-              backgroundColor: "#facc15",
-              color: "#000",
-              textTransform: "none",
-              "&:hover": { backgroundColor: "#eab308" },
-            }}
-            onClick={() => setOpenAdd(true)}
-          >
-            + Add Order
-          </Button>
         </Box>
       </Box>
 
-    
       <TableContainer component={Paper} sx={{ maxHeight: 540 }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              {["Order ID", "Customer", "Amount", "Status", "Action"].map((h) => (
-                <TableCell key={h}>
-                  <strong>{h}</strong>
-                </TableCell>
+              {["Order ID", "Customer", "Items", "Amount", "Status", "Date & Time", "Action"].map((h) => (
+                <TableCell key={h}><strong>{h}</strong></TableCell>
               ))}
             </TableRow>
           </TableHead>
@@ -189,26 +180,19 @@ const filteredOrders = orders.filter(
                 <TableCell>{order.items}</TableCell>
                 <TableCell>₹{order.amount}</TableCell>
                 <TableCell>
-                  <Chip
-                    label={order.status}
-                    color={getStatusColor(order.status)}
-                    size="small"
-                  />
+                  <Chip label={order.status} color={getStatusColor(order.status)} size="small" />
                 </TableCell>
                 <TableCell>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => showModal(order)}
-                  >
-                    View
-                  </Button>
+                  {order.order_date_time ? formatDateTime(order.order_date_time) : "N/A"}
+                </TableCell>
+                <TableCell>
+                  <Button variant="outlined" size="small" onClick={() => showModal(order)}>View</Button>
                 </TableCell>
               </TableRow>
             ))}
             {filteredOrders.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={7} align="center">
                   {loading ? "Loading orders..." : "No matching orders found."}
                 </TableCell>
               </TableRow>
@@ -217,82 +201,54 @@ const filteredOrders = orders.filter(
         </Table>
       </TableContainer>
 
-     
+      {/* View Modal with Editable Status */}
       <Dialog open={openView} onClose={() => setOpenView(false)}>
         <DialogTitle>Order Details</DialogTitle>
         <DialogContent dividers>
           {selectedOrder && (
             <>
-              {["id", "customer", "items", "amount", "status"].map((key) => (
-                <Typography key={key} mb={1}>
-                  <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong>{" "}
-                  {key === "amount"
-                    ? `₹${selectedOrder[key]}`
-                    : selectedOrder[key]}
-                </Typography>
-              ))}
+              <Typography mb={1}><strong>Order ID:</strong> {selectedOrder.id}</Typography>
+              <Typography mb={1}><strong>Customer:</strong> {selectedOrder.customer}</Typography>
+              <Typography mb={1}><strong>Items:</strong> {selectedOrder.items}</Typography>
+              <Typography mb={1}><strong>Amount:</strong> ₹{selectedOrder.amount}</Typography>
+              <Typography mb={1}><strong>Date & Time:</strong> {formatDateTime(selectedOrder.order_date_time)}</Typography>
+
+              <TextField
+                fullWidth
+                select
+                label="Update Status"
+                value={selectedOrder.status}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                margin="normal"
+              >
+                {["Pending", "Preparing", "Delivered", "Cancelled", "Confirmed"].map((s) => (
+                  <MenuItem key={s} value={s}>{s}</MenuItem>
+                ))}
+              </TextField>
             </>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenView(false)} color="secondary">
-            Close
-          </Button>
+          <Button onClick={() => setOpenView(false)} color="secondary">Close</Button>
         </DialogActions>
       </Dialog>
 
-      {/* Add Modal */}
+      {/* Add Order Modal (Same as Before) */}
       <Dialog open={openAdd} onClose={handleAddCancel}>
         <DialogTitle>Add New Order</DialogTitle>
         <DialogContent dividers>
-          <TextField
-            fullWidth
-            label="Customer Name"
-            name="customer"
-            value={newOrder.customer}
-            onChange={handleChange}
-            margin="normal"
-          />
-          <TextField
-            fullWidth
-            label="Items"
-            name="items"
-            value={newOrder.items}
-            onChange={handleChange}
-            margin="normal"
-          />
-          <TextField
-            fullWidth
-            label="Amount"
-            name="amount"
-            type="number"
-            value={newOrder.amount}
-            onChange={handleChange}
-            margin="normal"
-          />
-          <TextField
-            fullWidth
-            select
-            label="Status"
-            name="status"
-            value={newOrder.status}
-            onChange={handleChange}
-            margin="normal"
-          >
+          <TextField fullWidth label="Customer Name" name="customer" value={newOrder.customer} onChange={handleChange} margin="normal" />
+          <TextField fullWidth label="Items" name="items" value={newOrder.items} onChange={handleChange} margin="normal" />
+          <TextField fullWidth label="Amount" name="amount" type="number" value={newOrder.amount} onChange={handleChange} margin="normal" />
+          <TextField fullWidth select label="Status" name="status" value={newOrder.status} onChange={handleChange} margin="normal">
             {["Pending", "Preparing", "Delivered", "Cancelled"].map((s) => (
-              <MenuItem key={s} value={s}>
-                {s}
-              </MenuItem>
+              <MenuItem key={s} value={s}>{s}</MenuItem>
             ))}
           </TextField>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleAddCancel} color="secondary">
-            Cancel
-          </Button>
-          <Button onClick={handleAddOrder} color="primary" variant="contained">
-            Add
-          </Button>
+          <Button onClick={handleAddCancel} color="secondary">Cancel</Button>
+          <Button onClick={handleAddOrder} color="primary" variant="contained">Add</Button>
         </DialogActions>
       </Dialog>
     </Box>

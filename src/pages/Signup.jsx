@@ -47,7 +47,7 @@ function Signup() {
 
     try {
       setLoading(true);
-      const url = "192.168.1.82:5000/api/auth/signup";
+      const url = "http://192.168.1.82:5000/api/auth/signup";
 
       const { data } = await axios.post(url, formData, {
         withCredentials: true,
