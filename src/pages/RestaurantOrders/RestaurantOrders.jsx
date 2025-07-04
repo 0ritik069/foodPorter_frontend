@@ -26,7 +26,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { baseUrl } from "../../features/Api/BaseUrl";
 
-const statusOptions = ["All", "Pending", "Preparing", "Delivered", "Cancelled"];
+const statusOptions = ["All", "pending", "preparing", "delivered", "cancelled"];
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -143,13 +143,33 @@ const RestaurantOrders = () => {
     setNewOrder((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleStatusChangeInline = (id, newStatus) => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === id ? { ...order, status: newStatus } : order
-      )
+ const handleStatusChangeInline = async (id, newStatus) => {
+  try {
+    const response = await axios.post(
+      `${baseUrl}orders/update-status/${id}`,
+      { status: newStatus },
+      {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          "Content-Type": "application/json",
+        },
+      }
     );
-  };
+
+    if (response.data.success) {
+      const updatedOrders = orders.map((order) =>
+        order.id === id ? { ...order, status: newStatus } : order
+      );
+      setOrders(updatedOrders);
+    } else {
+      alert("Failed to update status");
+    }
+  } catch (error) {
+    console.error("Status update error:", error?.response?.data || error.message);
+    alert("Status update failed: " + (error.response?.data?.message || "Something went wrong"));
+  }
+};
+
 
   return (
     <Box p={2}>

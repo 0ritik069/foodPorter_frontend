@@ -135,13 +135,40 @@ const ManageOrders = () => {
   };
 
   
-  const handleStatusChange = (newStatus) => {
-    const updatedOrders = orders.map((o) =>
-      o.id === selectedOrder.id ? { ...o, status: newStatus } : o
+const handleStatusChange = async (newStatus) => {
+  try {
+    const response = await axios.post(
+      `${baseUrl}orders/update-status/${selectedOrder.id}`,
+      { status: newStatus }, 
+      {
+        headers: {
+          Authorization: `Bearer ${getToken()}`, 
+          "Content-Type": "application/json",    
+        },
+      }
     );
-    setOrders(updatedOrders);
-    setSelectedOrder({ ...selectedOrder, status: newStatus });
-  };
+
+    if (response.data.success) {
+      const updatedOrders = orders.map((o) =>
+        o.id === selectedOrder.id ? { ...o, status: newStatus } : o
+      );
+      setOrders(updatedOrders);
+      setSelectedOrder({ ...selectedOrder, status: newStatus });
+    } else {
+      alert("Status update failed.");
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error("Server response:", error.response.data);
+      alert("Status update failed: " + (error.response.data.message || "Unknown error"));
+    } else {
+      console.error("Error updating status:", error);
+      alert("An error occurred while updating the order status.");
+    }
+  }
+};
+
+
 
   return (
     <Box p={3}>
@@ -221,7 +248,7 @@ const ManageOrders = () => {
                 onChange={(e) => handleStatusChange(e.target.value)}
                 margin="normal"
               >
-                {["Pending", "Preparing", "Delivered", "Cancelled", "Confirmed"].map((s) => (
+                {["pending", "preparing", "delivered", "cancelled", "confirmed"].map((s) => (
                   <MenuItem key={s} value={s}>{s}</MenuItem>
                 ))}
               </TextField>
