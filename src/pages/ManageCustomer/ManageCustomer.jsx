@@ -205,7 +205,7 @@ export default function ManageCustomer() {
         </Paper>
       )}
 
-      {/* View Modal */}
+    
       <Modal open={openView} onClose={() => setOpenView(false)}>
         <Box sx={modalStyle}>
           <Typography variant="h6" mb={2} fontWeight={600}>Customer Details</Typography>

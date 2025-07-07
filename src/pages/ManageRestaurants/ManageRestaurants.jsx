@@ -249,7 +249,7 @@ export default function ManageRestaurants() {
         </Paper>
       )}
 
-      {/* View Modal */}
+     
       <Modal open={openView} onClose={() => setOpenView(false)}>
         <Box sx={modalStyle}>
           <Typography variant="h6" mb={2} fontWeight={600}>Restaurant Details</Typography>
@@ -281,7 +281,7 @@ export default function ManageRestaurants() {
         </Box>
       </Modal>
 
-      {/* Edit Modal */}
+    
       <Modal open={openEdit} onClose={() => setOpenEdit(false)}>
         <Box sx={modalStyle}>
           <Typography variant="h6" mb={2} fontWeight={600}>Edit Restaurant</Typography>
@@ -311,7 +311,7 @@ export default function ManageRestaurants() {
         </Box>
       </Modal>
 
-      {/* Add Modal */}
+   
       <Modal open={openAdd} onClose={() => setOpenAdd(false)}>
         <Box sx={modalStyle}>
           <Typography variant="h6" mb={2} fontWeight={600}>Add Restaurant</Typography>
