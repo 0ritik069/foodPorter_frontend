@@ -129,7 +129,7 @@ const RestaurantOrders = () => {
   const handleAddOrderOpen = () => setAddDialogOpen(true);
   const handleAddOrderClose = () => {
     setAddDialogOpen(false);
-    setNewOrder({ customer: "", items: "", amount: "", status: "Pending" });
+    setNewOrder({ customer: "", items: "", amount: "", status: "pending" });
   };
 
   const handleAddOrderSave = () => {

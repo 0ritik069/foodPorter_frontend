@@ -45,12 +45,12 @@ function Login() {
       );
 
       const { token, user } = data;
-      const { id, name, email: uEmail, role: dbRole } = user;
+      const { id, firstName, email: uEmail, role: dbRole } = user;
 
      
       localStorage.setItem("id", id);
       localStorage.setItem("token", token);
-      localStorage.setItem("name", name);
+      localStorage.setItem("firstName", firstName);
       localStorage.setItem("email", uEmail);
       localStorage.setItem("role", dbRole);
 
