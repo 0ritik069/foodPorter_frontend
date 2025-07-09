@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import {
-  TextField,
-} from "@mui/material";
+import { TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import logo from "../assets/logo2.jpeg";
@@ -18,6 +16,9 @@ function Signup() {
     password: "",
     countryCode: "+91",
     phone: "",
+    address: "",
+    restaurantName: "",
+    image: null,
     role: "restaurant",
   });
 
@@ -25,8 +26,12 @@ function Signup() {
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, files } = e.target;
+    if (name === "image") {
+      setFormData((prev) => ({ ...prev, image: files[0] }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSignup = async (e) => {
@@ -38,18 +43,27 @@ function Signup() {
       password,
       phone,
       countryCode,
+      address,
+      restaurantName,
+      image
     } = formData;
 
-    if (!firstName || !lastName || !email || !password || !phone || !countryCode) {
-      Swal.fire("Error", "Please fill in all fields", "error");
+    if (!firstName || !lastName || !email || !password || !phone || !countryCode || !address || !restaurantName || !image) {
+      Swal.fire("Error", "Please fill in all fields including image", "error");
       return;
     }
 
     try {
       setLoading(true);
-      const url = "http://192.168.1.82:5000/api/auth/signup";
+      const url = "http://192.168.1.12:5000/api/auth/signup/restaurant";
 
-      const { data } = await axios.post(url, formData, {
+      const data = new FormData();
+      for (const key in formData) {
+        data.append(key, formData[key]);
+      }
+
+      const response = await axios.post(url, data, {
+        headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       });
 
@@ -75,56 +89,23 @@ function Signup() {
           <h4 className="text-2xl font-bold text-gray-800">Sign Up</h4>
         </div>
 
-        <form onSubmit={handleSignup}>
-          <TextField
-            fullWidth
-            label="First Name"
-            name="firstName"
-            value={formData.firstName}
+        <form onSubmit={handleSignup} encType="multipart/form-data">
+          <TextField fullWidth label="First Name" name="firstName" value={formData.firstName} onChange={handleChange} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Last Name" name="lastName" value={formData.lastName} onChange={handleChange} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Email" name="email" type="email" value={formData.email} onChange={handleChange} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Password" name="password" type="password" value={formData.password} onChange={handleChange} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Phone Number" name="phone" value={formData.phone} onChange={handleChange} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Country Code" name="countryCode" value={formData.countryCode} onChange={handleChange} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Address" name="address" value={formData.address} onChange={handleChange} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Restaurant Name" name="restaurantName" value={formData.restaurantName} onChange={handleChange} sx={{ mb: 2 }} />
+
+         
+          <input
+            type="file"
+            name="image"
+            accept="image/*"
             onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            fullWidth
-            label="Last Name"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            fullWidth
-            label="Email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            fullWidth
-            label="Password"
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            fullWidth
-            label="Phone Number"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            fullWidth
-            label="Country Code"
-            name="countryCode"
-            value={formData.countryCode}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
+            className="mb-4 w-full"
           />
 
           {error && <p className="text-red-600 text-sm">{error}</p>}

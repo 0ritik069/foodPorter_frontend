@@ -64,7 +64,7 @@ const RestaurantOrders = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${baseUrl}orders/order-list`,
+        `http://192.168.1.12:5000/api/orders/restaurant-orders`,
         {},
         {
           headers: {
@@ -72,6 +72,9 @@ const RestaurantOrders = () => {
           },
         }
       );
+
+      console.log(response);
+      
       if (response.data && Array.isArray(response.data.Orders)) {
         setOrders(response.data.Orders);
       } else {

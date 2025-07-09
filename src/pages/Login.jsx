@@ -36,16 +36,17 @@ function Login() {
       setLoading(true);
 
      
-    const url = `http://192.168.1.82:5000/api/auth/login/${role}`;
+    const url = `http://192.168.1.12:5000/api/auth/login/${role}`;
 
       const { data } = await axios.post(
         url,
         { email, password },
         { withCredentials: true }
       );
-
+      console.log("Login response:", data);
+      
       const { token, user } = data;
-      const { id, firstName, email: uEmail, role: dbRole } = user;
+      const { id, firstName, email: uEmail, role: dbRole,restaurantId } = user;
 
      
       localStorage.setItem("id", id);
@@ -53,6 +54,10 @@ function Login() {
       localStorage.setItem("firstName", firstName);
       localStorage.setItem("email", uEmail);
       localStorage.setItem("role", dbRole);
+
+      if(dbRole === "restaurant") {
+        localStorage.setItem("restaurantId", restaurantId);
+      }
 
       Swal.fire("Success", "Logged in!", "success");
       navigate(getDashboardPath(dbRole));

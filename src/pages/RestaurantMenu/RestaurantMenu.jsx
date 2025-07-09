@@ -31,7 +31,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 
-const API = axios.create({ baseURL: 'http://192.168.1.80:5000/api' });
+const API = axios.create({ baseURL: 'http://192.168.1.12:5000/api' });
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
@@ -69,7 +69,8 @@ export default function RestaurantMenu() {
   const fetchMenu = async (signal) => {
     setLoading(true);
     try {
-      const { data } = await API.get(`/dishes?restaurantId=${restaurantId}`, { signal });
+      const { data } = await API.get(`/dishes/restaurant/${restaurantId}`, { signal });
+
       const formatted = (data.data || []).map(dish => ({
         ...dish,
         availability: dish.is_available === 1,
