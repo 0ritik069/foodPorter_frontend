@@ -235,8 +235,9 @@ export default function ManageCustomer() {
       {/* Add/Edit Dialog */}
       <Dialog open={openDlg} onClose={() => setOpenDlg(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{isEdit ? 'Edit Customer' : 'Add Customer'}</DialogTitle>
-        <DialogContent sx={{ mt:1, display:'flex', flexDirection:'column', gap:2 }}>
-          <TextField label="Full Name" value={formData.firstName} onChange={(e)=>setFormData({...formData, firstName:e.target.value})} />
+       <DialogContent sx={{ pt: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
+
+          <TextField  sx={{ mt: 1 }} label="Full Name" value={formData.firstName} onChange={(e)=>setFormData({...formData, firstName:e.target.value})} />
           <TextField label="Email" value={formData.email} onChange={(e)=>setFormData({...formData, email:e.target.value})} />
           {!isEdit && <TextField label="Password" type="password" value={formData.password} onChange={(e)=>setFormData({...formData, password:e.target.value})} />}
           <Box display="flex" gap={1}>

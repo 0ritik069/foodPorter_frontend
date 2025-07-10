@@ -39,6 +39,7 @@ const emptyForm = {
   email: "",
   phone: "",
   address: "",
+  ownerName: "",
   status: "open",
   image: null,
   preview: "",
@@ -128,29 +129,40 @@ export default function ManageRestaurants() {
     }
   };
 
-  const handleSave = async () => {
-    const fd = new FormData();
-    Object.entries(formData).forEach(([k, v]) => {
-      if (k === "id" || k === "preview") return;
-      if (k === "image" && !v) return;
-      fd.append(k, v);
+ const handleSave = async () => {
+  const fd = new FormData();
+
+  Object.entries(formData).forEach(([k, v]) => {
+    if (k === "id" || k === "preview") return;
+
+
+    if (k === "image") {
+      if (v) {
+        fd.append("image", v);
+      }
+      return;
+    }
+
+    fd.append(k, v);
+  });
+
+  try {
+    await API.post(`/restaurants/update/${formData.id}`, fd, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
 
-    try {
-      await API.put(`/restaurants/${formData.id}`, fd, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      showToast("Restaurant updated");
-      setOpenEdit(false);
-      fetchRestaurants();
-    } catch {
-      showToast("Update failed", "error");
-    }
-  };
+    showToast("Restaurant updated");
+    setOpenEdit(false);
+    fetchRestaurants();
+  } catch {
+    showToast("Update failed", "error");
+  }
+};
+
 
   const handleAdd = async () => {
-    const { name, email, phone, password, address } = addData;
-    if (!name || !email || !phone || !password || !address)
+    const { name, email, phone, password, address,image,status,ownerName } = addData;
+    if (!name || !email || !phone || !password || !address  || !status || !ownerName)
       return showToast("All fields required", "warning");
 
     const fd = new FormData();
@@ -289,7 +301,7 @@ export default function ManageRestaurants() {
             sx={{ width: 56, height: 56, mb: 1 }}
             src={formData.image ? URL.createObjectURL(formData.image) : getImageUrl(formData.preview)}
           />
-          {["name", "email", "phone", "address"].map((f) => (
+          {["name", "email", "phone", "address", "ownerName"].map((f) => (
             <TextField
               key={f}
               label={f.charAt(0).toUpperCase() + f.slice(1)}
@@ -300,6 +312,25 @@ export default function ManageRestaurants() {
               onChange={(e) => setFormData({ ...formData, [f]: e.target.value })}
             />
           ))}
+
+          {/* status select dropdown */}
+          <TextField
+            select
+            fullWidth
+            size="small"
+            sx={{ mb: 2 }}
+            label="Status"
+            value={formData.status}
+            onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+          SelectProps={{ native: true }}
+            >
+              <option value="open">Open</option>
+              <option value="closed">Closed</option>
+            </TextField>
+
+            
+
+
           <Button component="label" sx={{ mb: 2 }}>
             Upload Image
             <input hidden type="file" accept="image/*" onChange={(e) => setFormData({ ...formData, image: e.target.files?.[0] })} />
@@ -319,7 +350,7 @@ export default function ManageRestaurants() {
             sx={{ width: 56, height: 56, mb: 1 }}
             src={addData.image ? URL.createObjectURL(addData.image) : ""}
           />
-          {["name", "email", "phone", "password", "address"].map((field) => (
+          {["name", "email", "phone", "password", "address","ownerName"].map((field) => (
             <TextField
               key={field}
               label={field.charAt(0).toUpperCase() + field.slice(1)}

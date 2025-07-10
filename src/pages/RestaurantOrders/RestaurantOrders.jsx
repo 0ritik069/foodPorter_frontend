@@ -63,9 +63,8 @@ const RestaurantOrders = () => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(
+      const response = await axios.get(
         `http://192.168.1.12:5000/api/orders/restaurant-orders`,
-        {},
         {
           headers: {
             Authorization: `Bearer ${getToken()}`,
@@ -73,8 +72,9 @@ const RestaurantOrders = () => {
         }
       );
 
+
       console.log(response);
-      
+
       if (response.data && Array.isArray(response.data.Orders)) {
         setOrders(response.data.Orders);
       } else {
@@ -146,32 +146,32 @@ const RestaurantOrders = () => {
     setNewOrder((prev) => ({ ...prev, [name]: value }));
   };
 
- const handleStatusChangeInline = async (id, newStatus) => {
-  try {
-    const response = await axios.post(
-      `${baseUrl}orders/update-status/${id}`,
-      { status: newStatus },
-      {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (response.data.success) {
-      const updatedOrders = orders.map((order) =>
-        order.id === id ? { ...order, status: newStatus } : order
+  const handleStatusChangeInline = async (id, newStatus) => {
+    try {
+      const response = await axios.post(
+        `${baseUrl}orders/update-status/${id}`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
-      setOrders(updatedOrders);
-    } else {
-      alert("Failed to update status");
+
+      if (response.data.success) {
+        const updatedOrders = orders.map((order) =>
+          order.id === id ? { ...order, status: newStatus } : order
+        );
+        setOrders(updatedOrders);
+      } else {
+        alert("Failed to update status");
+      }
+    } catch (error) {
+      console.error("Status update error:", error?.response?.data || error.message);
+      alert("Status update failed: " + (error.response?.data?.message || "Something went wrong"));
     }
-  } catch (error) {
-    console.error("Status update error:", error?.response?.data || error.message);
-    alert("Status update failed: " + (error.response?.data?.message || "Something went wrong"));
-  }
-};
+  };
 
 
   return (
