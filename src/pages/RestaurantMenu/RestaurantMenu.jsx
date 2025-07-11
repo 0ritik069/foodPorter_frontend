@@ -30,14 +30,12 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-
 const API = axios.create({ baseURL: 'http://192.168.1.12:5000/api' });
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
-
 
 const PER_PAGE = 9;
 const emptyForm = {
@@ -60,7 +58,6 @@ export default function RestaurantMenu() {
   const [currentId, setCurrentId] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
 
- 
   const restaurantId = localStorage.getItem('restaurantId');
 
   const showToast = (title, icon = 'success') =>
@@ -70,7 +67,6 @@ export default function RestaurantMenu() {
     setLoading(true);
     try {
       const { data } = await API.get(`/dishes/restaurant/${restaurantId}`, { signal });
-
       const formatted = (data.data || []).map(dish => ({
         ...dish,
         availability: dish.is_available === 1,
@@ -189,8 +185,14 @@ export default function RestaurantMenu() {
         <Typography variant="h5" fontWeight={600}>Menu Management</Typography>
         <Box display="flex" gap={2} flexWrap="wrap">
           <TextField size="small" label="Search items" onChange={(e) => setSearch(e.target.value)} />
-          <Button variant="contained"
-            sx={{ backgroundColor: '#facc15', color: '#000', textTransform: 'none', '&:hover': { backgroundColor: '#eab308' } }}
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: '#facc15',
+              color: '#000',
+              textTransform: 'none',
+              '&:hover': { backgroundColor: '#eab308' }
+            }}
             onClick={openAddDialog}>
             + Add New Item
           </Button>
@@ -216,11 +218,15 @@ export default function RestaurantMenu() {
                 {slice.map((d) => (
                   <TableRow key={d.id} hover>
                     <TableCell>
-                      {d.image ? (
-                        <Avatar src={d.image} sx={{ width: 40, height: 40 }} />
-                      ) : (
-                        <Avatar sx={{ width: 40, height: 40 }}>{d.name.charAt(0)}</Avatar>
-                      )}
+                      <Avatar
+                        src={d.image}
+                        alt={d.name}
+                        sx={{ width: 40, height: 40 }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = `https://ui-avatars.com/api/?name=${d.name}`;
+                        }}
+                      />
                     </TableCell>
                     <TableCell><b>{d.name}</b></TableCell>
                     <TableCell>{d.category_name || d.category}</TableCell>
@@ -315,9 +321,16 @@ export default function RestaurantMenu() {
   );
 }
 
-// Modal Style
+// Modal styling
 const modalStyle = {
-  position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-  bgcolor: 'background.paper', boxShadow: 24, p: 3, borderRadius: 2, width: 420,
-  maxHeight: '85vh', overflowY: 'auto',
+  position: 'absolute',
+  top: '50%', left: '50%',
+  transform: 'translate(-50%, -50%)',
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  p: 3,
+  borderRadius: 2,
+  width: 420,
+  maxHeight: '85vh',
+  overflowY: 'auto',
 };
