@@ -2,35 +2,17 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import {
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Modal,
-  Paper,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TextField,
-  Tooltip,
-  Typography
+  Avatar, Box, Button, Chip, CircularProgress, Dialog,
+  DialogActions, DialogContent, DialogTitle, IconButton,
+  Modal, Paper, Switch, Table, TableBody, TableCell,
+  TableContainer, TableHead, TablePagination, TableRow,
+  TextField, Tooltip, Typography
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const API = axios.create({ baseURL: 'http://192.168.1.12:5000/api' });
+const API = axios.create({ baseURL: 'http://192.168.1.82:5000/api' });
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
@@ -71,6 +53,8 @@ export default function RestaurantMenu() {
         ...dish,
         availability: dish.is_available === 1,
       }));
+      console.log("Fetched dishes:", formatted);
+      
       setDishes(formatted);
     } catch (err) {
       if (!axios.isCancel(err)) showToast('Failed to load dishes', 'error');
@@ -111,7 +95,14 @@ export default function RestaurantMenu() {
   const openEditDialog = (dish) => {
     setIsEdit(true);
     setCurrentId(dish.id);
-    setFormData({ ...emptyForm, ...dish, image: null });
+    setFormData({
+      ...emptyForm,
+      name: dish.name,
+      category: dish.category_name || dish.category,
+      price: dish.price,
+      availability: dish.availability,
+      image: null,
+    });
     setOpenDlg(true);
   };
 

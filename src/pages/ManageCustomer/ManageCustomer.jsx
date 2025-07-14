@@ -1,30 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Swal from 'sweetalert2';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Modal,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TextField,
-  Typography
-} from '@mui/material';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+// ... All imports stay the same
 
 const AXIOS = axios.create({ baseURL: import.meta.env.VITE_BASE_URL });
 const PER_PAGE = 10;
@@ -47,6 +21,7 @@ export default function ManageCustomer() {
   const [isEdit, setIsEdit] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
+  const [errors, setErrors] = useState({});
   const [openView, setOpenView] = useState(false);
   const [customerDetails, setCustomerDetails] = useState(null);
 
@@ -57,7 +32,6 @@ export default function ManageCustomer() {
       setCustomers(data.data || []);
     } catch (err) {
       if (axios.isCancel(err)) return;
-      console.error(err);
       Swal.fire('Error', 'Failed to fetch customers', 'error');
     } finally {
       setLoading(false);
@@ -69,6 +43,18 @@ export default function ManageCustomer() {
     fetchCustomers(controller.signal);
     return () => controller.abort();
   }, []);
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.firstName.trim()) newErrors.firstName = "Name is required";
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    if (!isEdit && !formData.password.trim()) newErrors.password = "Password is required";
+    if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleView = async (id) => {
     try {
@@ -84,6 +70,7 @@ export default function ManageCustomer() {
     setIsEdit(false);
     setCurrentId(null);
     setFormData(emptyForm);
+    setErrors({});
     setOpenDlg(true);
   };
 
@@ -91,6 +78,7 @@ export default function ManageCustomer() {
     setIsEdit(true);
     setCurrentId(cust.id);
     setFormData({ ...emptyForm, ...cust, password: '' });
+    setErrors({});
     setOpenDlg(true);
   };
 
@@ -114,11 +102,7 @@ export default function ManageCustomer() {
   };
 
   const handleSave = async () => {
-    const { firstName, email, phone } = formData;
-    if (!firstName || !email || !phone) {
-      Swal.fire('Error', 'Name, Email, Phone required', 'warning');
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       if (isEdit) {
@@ -135,6 +119,11 @@ export default function ManageCustomer() {
     }
   };
 
+  const handleFieldChange = (name, value) => {
+    setFormData({ ...formData, [name]: value });
+    if (errors[name]) setErrors({ ...errors, [name]: "" });
+  };
+
   const filtered = customers.filter((c) =>
     c.firstName?.toLowerCase().includes(search.toLowerCase())
   );
@@ -147,20 +136,24 @@ export default function ManageCustomer() {
         <Typography variant="h5" fontWeight={600}>Manage Customers</Typography>
         <Box display="flex" gap={2} flexWrap="wrap">
           <TextField size="small" label="Search name" value={search} onChange={(e) => setSearch(e.target.value)} />
-          <Button variant="contained" sx={{
+          <Button
+            variant="contained"
+            sx={{
               backgroundColor: "#facc15",
               color: "#000",
               textTransform: "none",
               "&:hover": { backgroundColor: "#eab308" },
-            }} onClick={openAddDialog}>
+            }}
+            onClick={openAddDialog}
+          >
             + Add Customer
           </Button>
         </Box>
       </Box>
 
-      
+      {/* Table */}
       {loading ? (
-        <Box display="flex" height={300} alignItems="center" justifyContent="center"><CircularProgress/></Box>
+        <Box display="flex" height={300} alignItems="center" justifyContent="center"><CircularProgress /></Box>
       ) : (
         <Paper elevation={3}>
           <TableContainer sx={{ maxHeight: 740 }}>
@@ -185,15 +178,9 @@ export default function ManageCustomer() {
                     <TableCell>{c.address}</TableCell>
                     <TableCell>
                       <Box display="flex" gap={1}>
-                        <IconButton size="small" sx={{ color:'#2563eb' }} onClick={() => handleView(c.id)}>
-                          <VisibilityIcon fontSize="small"/>
-                        </IconButton>
-                        <IconButton size="small" sx={{ color:'#f59e0b' }} onClick={() => openEditDialog(c)}>
-                          <EditIcon fontSize="small"/>
-                        </IconButton>
-                        <IconButton size="small" sx={{ color:'red' }} onClick={() => handleDelete(c.id)}>
-                          <DeleteIcon fontSize="small"/>
-                        </IconButton>
+                        <IconButton size="small" sx={{ color: '#2563eb' }} onClick={() => handleView(c.id)}><VisibilityIcon fontSize="small" /></IconButton>
+                        <IconButton size="small" sx={{ color: '#f59e0b' }} onClick={() => openEditDialog(c)}><EditIcon fontSize="small" /></IconButton>
+                        <IconButton size="small" sx={{ color: 'red' }} onClick={() => handleDelete(c.id)}><DeleteIcon fontSize="small" /></IconButton>
                       </Box>
                     </TableCell>
                   </TableRow>
@@ -205,7 +192,7 @@ export default function ManageCustomer() {
         </Paper>
       )}
 
-    
+      {/* View Modal */}
       <Modal open={openView} onClose={() => setOpenView(false)}>
         <Box sx={modalStyle}>
           <Typography variant="h6" mb={2} fontWeight={600}>Customer Details</Typography>
@@ -219,13 +206,13 @@ export default function ManageCustomer() {
                   Address: customerDetails.address || '-',
                 }).map(([k, v]) => (
                   <TableRow key={k}>
-                    <TableCell sx={{ fontWeight:600 }}>{k}</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>{k}</TableCell>
                     <TableCell>{v}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          ) : <CircularProgress/>}
+          ) : <CircularProgress />}
           <Box textAlign="right" mt={2}>
             <Button variant="contained" onClick={() => setOpenView(false)}>Close</Button>
           </Box>
@@ -235,19 +222,57 @@ export default function ManageCustomer() {
       {/* Add/Edit Dialog */}
       <Dialog open={openDlg} onClose={() => setOpenDlg(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{isEdit ? 'Edit Customer' : 'Add Customer'}</DialogTitle>
-       <DialogContent sx={{ pt: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
-
-          <TextField  sx={{ mt: 1 }} label="Full Name" value={formData.firstName} onChange={(e)=>setFormData({...formData, firstName:e.target.value})} />
-          <TextField label="Email" value={formData.email} onChange={(e)=>setFormData({...formData, email:e.target.value})} />
-          {!isEdit && <TextField label="Password" type="password" value={formData.password} onChange={(e)=>setFormData({...formData, password:e.target.value})} />}
+        <DialogContent sx={{ pt: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <TextField
+            label="Full Name"
+            value={formData.firstName}
+            onChange={(e) => handleFieldChange('firstName', e.target.value)}
+            error={!!errors.firstName}
+            helperText={errors.firstName}
+          />
+          <TextField
+            label="Email"
+            value={formData.email}
+            onChange={(e) => handleFieldChange('email', e.target.value)}
+            error={!!errors.email}
+            helperText={errors.email}
+          />
+          {!isEdit && (
+            <TextField
+              label="Password"
+              type="password"
+              value={formData.password}
+              onChange={(e) => handleFieldChange('password', e.target.value)}
+              error={!!errors.password}
+              helperText={errors.password}
+            />
+          )}
           <Box display="flex" gap={1}>
-            <TextField label="Country Code" sx={{ width:'35%' }} value={formData.countryCode} onChange={(e)=>setFormData({...formData, countryCode:e.target.value})} />
-            <TextField label="Phone" sx={{ flex:1 }} value={formData.phone} onChange={(e)=>setFormData({...formData, phone:e.target.value})} />
+            <TextField
+              label="Country Code"
+              sx={{ width: '35%' }}
+              value={formData.countryCode}
+              onChange={(e) => handleFieldChange('countryCode', e.target.value)}
+            />
+            <TextField
+              label="Phone"
+              sx={{ flex: 1 }}
+              value={formData.phone}
+              onChange={(e) => handleFieldChange('phone', e.target.value)}
+              error={!!errors.phone}
+              helperText={errors.phone}
+            />
           </Box>
-          <TextField label="Address" multiline rows={2} value={formData.address} onChange={(e)=>setFormData({...formData, address:e.target.value})} />
+          <TextField
+            label="Address"
+            multiline
+            rows={2}
+            value={formData.address}
+            onChange={(e) => handleFieldChange('address', e.target.value)}
+          />
         </DialogContent>
         <DialogActions>
-          <Button onClick={()=>setOpenDlg(false)}>Cancel</Button>
+          <Button onClick={() => setOpenDlg(false)}>Cancel</Button>
           <Button variant="contained" onClick={handleSave}>{isEdit ? 'Update' : 'Save'}</Button>
         </DialogActions>
       </Dialog>

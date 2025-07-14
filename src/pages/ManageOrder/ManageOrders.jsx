@@ -1,25 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  Box,
-  Button,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  InputAdornment,
-  MenuItem,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-  TablePagination,
+  Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
+  InputAdornment, MenuItem, Paper, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, TextField, Typography, TablePagination
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { baseUrl } from "../../features/Api/BaseUrl";
@@ -31,7 +15,7 @@ const ManageOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const getToken = () => localStorage.getItem("token");
 
@@ -41,7 +25,6 @@ const ManageOrders = () => {
       const response = await axios.post(`${baseUrl}orders/order-list`, {}, {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
-
       if (Array.isArray(response.data.Orders)) {
         setOrders(response.data.Orders);
       } else {
@@ -101,9 +84,10 @@ const ManageOrders = () => {
   };
 
   const handleStatusChange = async (newStatus) => {
+    if (!selectedOrder) return;
     try {
       const response = await axios.post(
-        `${baseUrl}orders/update-status/${selectedOrder.order_id}`,
+        `${baseUrl}orders/update/${selectedOrder.order_id}`,
         { status: newStatus },
         {
           headers: {
@@ -114,13 +98,26 @@ const ManageOrders = () => {
       );
 
       if (response.data.success) {
-        const updatedOrders = orders.map((o) =>
-          o.order_id === selectedOrder.order_id ? { ...o, items: o.items.map(i => ({ ...i, order_status: newStatus })) } : o
+        
+        const updatedOrders = orders.map((order) =>
+          order.order_id === selectedOrder.order_id
+            ? {
+                ...order,
+                items: order.items.map((item) => ({
+                  ...item,
+                  order_status: newStatus,
+                })),
+              }
+            : order
         );
         setOrders(updatedOrders);
+
         setSelectedOrder({
           ...selectedOrder,
-          items: selectedOrder.items.map(i => ({ ...i, order_status: newStatus })),
+          items: selectedOrder.items.map((item) => ({
+            ...item,
+            order_status: newStatus,
+          })),
         });
       } else {
         alert("Status update failed.");
@@ -172,11 +169,17 @@ const ManageOrders = () => {
                 <TableCell>{order.restaurant_name}</TableCell>
                 <TableCell>₹{order.final_amount}</TableCell>
                 <TableCell>
-                  <Chip label={order.items[0]?.order_status || "Pending"} color={getStatusColor(order.items[0]?.order_status)} size="small" />
+                  <Chip
+                    label={order.items[0]?.order_status || "Pending"}
+                    color={getStatusColor(order.items[0]?.order_status)}
+                    size="small"
+                  />
                 </TableCell>
                 <TableCell>{formatDateTime(order.created_at)}</TableCell>
                 <TableCell>
-                  <Button variant="outlined" size="small" onClick={() => showModal(order)}>View</Button>
+                  <Button variant="outlined" size="small" onClick={() => showModal(order)}>
+                    View
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -201,7 +204,7 @@ const ManageOrders = () => {
         rowsPerPageOptions={[5, 10, 25, 50]}
       />
 
-      {/* View Modal */}
+      {/* View Order Modal */}
       <Dialog open={openView} onClose={() => setOpenView(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Order Details</DialogTitle>
         <DialogContent dividers>
@@ -226,6 +229,7 @@ const ManageOrders = () => {
                 ))}
               </Box>
 
+              {/* Status Dropdown */}
               <TextField
                 fullWidth
                 select
@@ -234,7 +238,7 @@ const ManageOrders = () => {
                 onChange={(e) => handleStatusChange(e.target.value)}
                 margin="normal"
               >
-                {["Pending", "Preparing", "Delivered", "Cancelled", "Confirmed"].map((s) => (
+                {["pending", "preparing", "delivered", "cancelled", "confirmed"].map((s) => (
                   <MenuItem key={s} value={s}>{s}</MenuItem>
                 ))}
               </TextField>

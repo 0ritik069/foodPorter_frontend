@@ -1,31 +1,31 @@
-import React, { useState } from "react";
-import "./AdminAccess.css";
-import { Typography } from "@mui/material";
-const AdminAccess = () => {
-    const [admins, setAdmins] = useState([]);
+import React from "react";
+import axios from "axios";
+import Swal from "sweetalert2";
+import {
 
-    const [newAdmin, setNewAdmin] = useState({
-        name: "",
-        email: "",
-        role: "Support",
-    });
+    Avatar,
+    Box,
+    Button,
+    CircularProgress,
+    IconButton,
+    Modal,
+    Paper,
+    Switch,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TablePagination,
+    TableRow,
+    TextField,
+    Typography,
+} from "@mui/material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { baseUrl } from "../../features/Api/BaseUrl";
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setNewAdmin((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const handleAddAdmin = (e) => {
-        e.preventDefault();
-        const newId = admins.length + 1;
-        setAdmins([...admins, { id: newId, ...newAdmin }]);
-        setNewAdmin({name: "", email: "", role: "support" });
-        alert("Admin added sucessfully");
-    };
-
-    const handleDelete = (id) => {
-        const 
-    }
+const BaseUrl =  axios.create({ baseURL: baseUrl});
 
 
-}

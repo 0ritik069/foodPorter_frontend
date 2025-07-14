@@ -200,7 +200,7 @@ export default function ManageRestaurants() {
             sx={{ backgroundColor: "#facc15", color: "#000", textTransform: "none", "&:hover": { backgroundColor: "#eab308" } }}
             onClick={() => setOpenAdd(true)}
           >
-            + Add Restaurant
+            + Add New Restaurant
           </Button>
         </Box>
       </Box>
@@ -213,7 +213,7 @@ export default function ManageRestaurants() {
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
-                  {["Img", "Name", "Phone", "City", "Status", "Actions"].map((h) => (
+                  {["Image", "Name", "Phone", "City", "Status", "Actions"].map((h) => (
                     <TableCell key={h}><b>{h}</b></TableCell>
                   ))}
                 </TableRow>
@@ -301,7 +301,7 @@ export default function ManageRestaurants() {
             sx={{ width: 56, height: 56, mb: 1 }}
             src={formData.image ? URL.createObjectURL(formData.image) : getImageUrl(formData.preview)}
           />
-          {["name", "email", "phone", "address", "ownerName"].map((f) => (
+          {["name", "email", "phone", "address", "Owner Name"].map((f) => (
             <TextField
               key={f}
               label={f.charAt(0).toUpperCase() + f.slice(1)}
@@ -350,7 +350,7 @@ export default function ManageRestaurants() {
             sx={{ width: 56, height: 56, mb: 1 }}
             src={addData.image ? URL.createObjectURL(addData.image) : ""}
           />
-          {["name", "email", "phone", "password", "address","ownerName"].map((field) => (
+          {["name", "email", "phone", "password", "address","Owner Name"].map((field) => (
             <TextField
               key={field}
               label={field.charAt(0).toUpperCase() + field.slice(1)}
